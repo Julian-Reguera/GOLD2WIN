@@ -142,18 +142,20 @@
                                                     </svg>
                                                 </div>
                                             </a>
-                                            <hr class="separadorDesplegable">
-                                            <form class="despUsItem" th:action="@{/login}" method="post">
-                                                <input type="hidden" name="username" value="Jose Luis">
-                                                <input type="hidden" name="password" value="aa">
-                                                <button type="submit">b</button>
-                                            </form>
-                            
-                                            <form class="despUsItem" th:action="@{/login}" method="post">
-                                                <input type="hidden" name="username" value="Ramon">
-                                                <input type="hidden" name="password" value="aa">
-                                                <button type="submit">a</button>
-                                            </form>
+                                            <th:block th:if="${application.debug}">
+                                                <hr class="separadorDesplegable">
+                                                <form class="despUsItem" th:action="@{/login}" method="post">
+                                                    <input type="hidden" name="username" value="Jose Luis">
+                                                    <input type="hidden" name="password" value="aa">
+                                                    <button type="submit">b</button>
+                                                </form>
+                                
+                                                <form class="despUsItem" th:action="@{/login}" method="post">
+                                                    <input type="hidden" name="username" value="Ramon">
+                                                    <input type="hidden" name="password" value="aa">
+                                                    <button type="submit">a</button>
+                                                </form>
+                                            </th:block>
                                         </div>
                                     </div>
                                 </div>

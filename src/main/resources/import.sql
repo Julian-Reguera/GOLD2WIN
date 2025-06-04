@@ -18,26 +18,6 @@ INSERT INTO IWUser (ID, DINERO_DISPONIBLE, DINERO_RETENIDO, EMAIL, ENABLED, FIRS
 
 
 --INSERT DE SECCIONES
--- INSERT DE USERS (username a, password aa)
-INSERT INTO IWUser (ID, DINERO_DISPONIBLE, DINERO_RETENIDO, EMAIL, ENABLED, FIRST_NAME, LAST_NAME, PASSWORD, ROLES, USERNAME) VALUES
-(1, 13055, 0, 'Jose_Luis@gmail.com', TRUE, 'Jose Luis', 'apellido1 apellido2', '{bcrypt}$2a$10$2BpNTbrsarbHjNsUWgzfNubJqBRf.0Vz9924nRSHBqlbPKerkgX.W', 'USER', 'Jose Luis'),
-(2, 13055, 0, 'ramon@gmail.com', TRUE, 'Ramon', 'apellido1 apellido2', '{bcrypt}$2a$10$2BpNTbrsarbHjNsUWgzfNubJqBRf.0Vz9924nRSHBqlbPKerkgX.W', 'ADMIN,USER', 'Ramon'),
-(3, 20000, 0, 'carlos.hernandez@example.com', TRUE, 'Carlos', 'Hernández Ruiz', '{bcrypt}$2a$10$2BpNTbrsarbHjNsUWgzfNubJqBRf.0Vz9924nRSHBqlbPKerkgX.W', 'USER', 'chernandez'),
-(4, 5000, 0, 'ana.martinez@example.com', TRUE, 'Ana', 'Martínez Sánchez', '{bcrypt}$2a$10$2BpNTbrsarbHjNsUWgzfNubJqBRf.0Vz9924nRSHBqlbPKerkgX.W', 'USER', 'amartinez'),
-(5, 30000, 0, 'luis.flores@example.com', TRUE, 'Luis', 'Flores Mendoza', '{bcrypt}$2a$10$2BpNTbrsarbHjNsUWgzfNubJqBRf.0Vz9924nRSHBqlbPKerkgX.W', 'ADMIN', 'lflores'),
-(6, 0, 0, 'sofia.rodriguez@example.com', TRUE, 'Sofía', 'Rodríguez Gómez', '{bcrypt}$2a$10$2BpNTbrsarbHjNsUWgzfNubJqBRf.0Vz9924nRSHBqlbPKerkgX.W', 'USER', 'srodriguez'),
-(7, 12000, 0, 'andres.lopez@example.com', TRUE, 'Andrés', 'López Martínez', '{bcrypt}$2a$10$2BpNTbrsarbHjNsUWgzfNubJqBRf.0Vz9924nRSHBqlbPKerkgX.W', 'USER', 'alopez'),
-(8, 8000, 0, 'carla.gomez@example.com', TRUE, 'Carla', 'Gómez García', '{bcrypt}$2a$10$2BpNTbrsarbHjNsUWgzfNubJqBRf.0Vz9924nRSHBqlbPKerkgX.W', 'USER', 'cgomez'),
-(9, 50000, 0, 'diego.sanchez@example.com', TRUE, 'Diego', 'Sánchez Pérez', '{bcrypt}$2a$10$2BpNTbrsarbHjNsUWgzfNubJqBRf.0Vz9924nRSHBqlbPKerkgX.W', 'ADMIN,USER', 'dsanchez'),
-(10, 6000, 0, 'lucia.ramirez@example.com', TRUE, 'Lucía', 'Ramírez Torres', '{bcrypt}$2a$10$2BpNTbrsarbHjNsUWgzfNubJqBRf.0Vz9924nRSHBqlbPKerkgX.W', 'USER', 'lramirez'),
-(11, 10000, 0, 'maria.garcia@example.com', TRUE, 'María', 'García López', '{bcrypt}$2a$10$2BpNTbrsarbHjNsUWgzfNubJqBRf.0Vz9924nRSHBqlbPKerkgX.W', 'USER', 'mgarcia'),
-(12, 0, 0, 'julianix882@gmail.com', TRUE, 'julián', 'Reguera Peñalosa', '{bcrypt}$2a$10$2BpNTbrsarbHjNsUWgzfNubJqBRf.0Vz9924nRSHBqlbPKerkgX.W', 'ADMIN,USER', 'julianix'),
-(13, 40000, 0, 'elena.fernandez@example.com', TRUE, 'Elena', 'Fernández Díaz', '{bcrypt}$2a$10$2BpNTbrsarbHjNsUWgzfNubJqBRf.0Vz9924nRSHBqlbPKerkgX.W', 'USER', 'efernandez'),
-(14, 58000, 0, 'pedro.alvarez@example.com', TRUE, 'Pedro', 'Álvarez Ruiz', '{bcrypt}$2a$10$2BpNTbrsarbHjNsUWgzfNubJqBRf.0Vz9924nRSHBqlbPKerkgX.W', 'USER', 'palvarez'),
-(15, 25000, 0, 'isabel.perez@example.com', TRUE, 'Isabel', 'Pérez López', '{bcrypt}$2a$10$2BpNTbrsarbHjNsUWgzfNubJqBRf.0Vz9924nRSHBqlbPKerkgX.W', 'ADMIN', 'iperez');
-
-
---INSERT DE SECCIONES
 INSERT INTO SECCION (ID, ENABLED, GRUPO, NOMBRE) VALUES
 (1, true, 'Deportes en Equipo', 'Futbol'),
 (2, true, 'Deportes en Equipo', 'Baloncesto'),
@@ -700,41 +680,39 @@ INSERT INTO VARIABLE (ID, NOMBRE, NUMERICO, RESOLUCION, ID_EVENTO) VALUES
 
 --OVERWATCH
 INSERT INTO EVENTO (ID, CANCELADO, DETERMINADO, FECHA_CIERRE, FECHA_CREACION, NOMBRE, SECCION_ID) VALUES
-(11, false, false, '2025-09-14 22:00:00', '2025-05-22 12:00:00', 'Overwatch League Grand Final: Atlanta Reign vs Houston Outlaws', 12);
+(14, false, false, '2025-09-14 22:00:00', '2025-05-22 12:00:00', 'Overwatch League Grand Final: Atlanta Reign vs Houston Outlaws', 12);
 
 INSERT INTO EVENTO_ETIQUETAS (EVENTO_ID, ETIQUETAS) VALUES
-(11, 'Esports'), (11, 'Overwatch'), (11, 'OWL'), (11, 'Final'), (11, 'Atlanta Reign'), (11, 'Houston Outlaws');
+(14, 'Esports'), (14, 'Overwatch'), (14, 'OWL'), (14, 'Final'), (14, 'Atlanta Reign'), (14, 'Houston Outlaws');
 
 INSERT INTO VARIABLE (ID, NOMBRE, NUMERICO, RESOLUCION, ID_EVENTO) VALUES
-(481, 'PuntosAtlantaReign', TRUE, NULL, 12),
-(482, 'PuntosHoustonOutlaws', TRUE, NULL, 12),
-(483, 'MuertesAtlantaReign', TRUE, NULL, 12),
-(484, 'MuertesHoustonOutlaws', TRUE, NULL, 12),
-(485, 'AsistenciasAtlantaReign', TRUE, NULL, 12),
-(486, 'AsistenciasHoustonOutlaws', TRUE, NULL, 12),
-(487, 'UltimatesUsadosAtlantaReign', TRUE, NULL, 12),
-(488, 'UltimatesUsadosHoustonOutlaws', TRUE, NULL, 12),
-(489, 'TiempoControladoAtlantaReign', TRUE, NULL, 12),
-(490, 'TiempoControladoHoustonOutlaws', TRUE, NULL, 12),
-(491, 'PrimerPuntoCapturado', FALSE, NULL, 12),
-(492, 'GanadorPrimeraRonda', FALSE, NULL, 12),
-(493, 'GanadorSegundaRonda', FALSE, NULL, 12),
-(494, 'GanadorTercerRonda', FALSE, NULL, 12),
-(495, 'EquipoConMasMuertes', FALSE, NULL, 12),
-(496, 'EquipoConMasUltimates', FALSE, NULL, 12),
-(497, 'EquipoConMasAsistencias', FALSE, NULL, 12),
-(498, 'MayorCantidadDeAsesinatos', FALSE, NULL, 12),
-(499, 'EquipoConMejorPorcentajeDePrecision', FALSE, NULL, 12),
-(500, 'GanadorFinal', FALSE, NULL, 12);
+(481, 'PuntosAtlantaReign', TRUE, NULL, 14),
+(482, 'PuntosHoustonOutlaws', TRUE, NULL, 14),
+(483, 'MuertesAtlantaReign', TRUE, NULL, 14),
+(484, 'MuertesHoustonOutlaws', TRUE, NULL, 14),
+(485, 'AsistenciasAtlantaReign', TRUE, NULL, 14),
+(486, 'AsistenciasHoustonOutlaws', TRUE, NULL, 14),
+(487, 'UltimatesUsadosAtlantaReign', TRUE, NULL, 14),
+(488, 'UltimatesUsadosHoustonOutlaws', TRUE, NULL, 14),
+(489, 'TiempoControladoAtlantaReign', TRUE, NULL, 14),
+(490, 'TiempoControladoHoustonOutlaws', TRUE, NULL, 14),
+(491, 'PrimerPuntoCapturado', FALSE, NULL, 14),
+(492, 'GanadorPrimeraRonda', FALSE, NULL, 14),
+(493, 'GanadorSegundaRonda', FALSE, NULL, 14),
+(494, 'GanadorTercerRonda', FALSE, NULL, 14),
+(495, 'EquipoConMasMuertes', FALSE, NULL, 14),
+(496, 'EquipoConMasUltimates', FALSE, NULL, 14),
+(497, 'EquipoConMasAsistencias', FALSE, NULL, 14),
+(498, 'MayorCantidadDeAsesinatos', FALSE, NULL, 14),
+(499, 'EquipoConMejorPorcentajeDePrecision', FALSE, NULL, 14),
+(500, 'GanadorFinal', FALSE, NULL, 1);
 
 --ROCKET LEAGUE
 INSERT INTO EVENTO (ID, CANCELADO, DETERMINADO, FECHA_CIERRE, FECHA_CREACION, NOMBRE, SECCION_ID) VALUES
-(12, false, false, '2025-07-28 18:00:00', '2025-05-22 12:00:00', 'RLCS World Championship Final: Team BDS vs Gen.G Mobil1 Racing', 12);
-
-(12, false, false, '2025-07-28 18:00:00', '2025-05-22 12:00:00', 'RLCS World Championship Final: Team BDS vs Gen.G Mobil1 Racing', 12);
+(12, false, false, '2025-07-28 18:00:00', '2025-05-22 12:00:00', 'RLCS World Championship Final: Team BDS vs GenG Mobil1 Racing', 12);
 
 INSERT INTO EVENTO_ETIQUETAS (EVENTO_ID, ETIQUETAS) VALUES
-(12, 'Esports'), (12, 'Rocket League'), (12, 'RLCS'), (12, 'Final'), (12, 'Team BDS'), (12, 'Gen.G Mobil1');
+(12, 'Esports'), (12, 'Rocket League'), (12, 'RLCS'), (12, 'Final'), (12, 'Team BDS'), (12, 'GenG Mobil1');
 
 INSERT INTO VARIABLE (ID, NOMBRE, NUMERICO, RESOLUCION, ID_EVENTO) VALUES
 (501, 'GolesTeamBDS', TRUE, NULL, 12),
@@ -767,7 +745,6 @@ INSERT INTO VARIABLE (ID, NOMBRE, NUMERICO, RESOLUCION, ID_EVENTO) VALUES
 (702, 'ToquesJugB', TRUE, NULL, 5),
 (703, 'PenalizacionesJugA', TRUE, NULL, 5),
 (704, 'PenalizacionesJugB', TRUE, NULL, 5);
-(12, 'Esports'), (12, 'Rocket League'), (12, 'RLCS'), (12, 'Final'), (12, 'Team BDS'), (12, 'Gen.G Mobil1');
 
 INSERT INTO FORMULA_APUESTA 
     (ID, DINERO_AFAVOR, DINERO_EN_CONTRA, FORMULA, NOMBRE, RESULTADO, CREADOR_ID, EVENTO_ID, FECHA_CREACION)
@@ -827,6 +804,14 @@ VALUES
 (FALSE, '2025-05-04 15:30:00', NULL, 1, 6, 2, 'Es demasiado pesimista :(('),
 (FALSE, '2025-03-03 19:30:00', NULL, 2, 9, 3, 'Es un bot solo sabe decir Mensaje 1,2,3...'),
 (FALSE, '2025-05-03 19:30:00', NULL, 3, 12, 4, 'Me cae muy mal. Expulsadlo porfa');
+
+
+-- anadir la columna tipo a la tabla de variables
+UPDATE VARIABLE
+SET TIPO = CASE 
+    WHEN NUMERICO = TRUE THEN 'NUMERICO'
+    ELSE 'TEXTO'
+END;
 
 -- start id numbering from a value that is larger than any assigned above
 ALTER SEQUENCE "PUBLIC"."GEN" RESTART WITH 1024;

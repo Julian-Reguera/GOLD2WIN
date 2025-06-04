@@ -38,6 +38,15 @@ const ws = {
                     location.reload(true);});
 
                 break;
+            case "newUser":
+                anadirFilaUsuario(data.user);
+                break;
+            case "newReporte":
+                anadirFilaReporte(data.reporte);
+                break;
+            case "eventoCreado":
+                anadirFilaEvento(data.evento);
+                break;
         }
     },
 
@@ -274,3 +283,121 @@ document.addEventListener("DOMContentLoaded", () => {
     // 	 document.addEventListener("DOMContentLoaded", () => { /* your-code-here */ });
     //   (assuming you do not care about order-of-execution, all such handlers will be called correctly)
 });
+
+/*FUNCIONES PARA LOS WEB-SOCKETS DE ADMINISTRACION*/
+function anadirFilaUsuario(usuario){
+    const tableUsers = window.tableUsers;
+    let fila = [];
+
+    if(!tableUsers)
+        return;
+
+    fila.push(usuario.id);
+    fila.push(usuario.username);
+    fila.push(usuario.email);
+    fila.push(usuario.saldo);
+    fila.push(usuario.rol);
+    fila.push(usuario.expulsadoHasta ? usuario.expulsadoHasta : "No ha sido expulsado");
+
+    let opciones = `<div class="dropdown">
+                            <button class="btn btn-sm" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                    <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                                </svg>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                                <li><a class="dropdown-item" href="#" href="${config.rootUrl}/user/${usuario.id}">Ver Más</a></li>`
+
+    if (usuario.rol && usuario.rol.split(',').includes('ADMIN')) {
+        opciones += `<li>
+                        <a class="dropdown-item" href="#" role="button" onclick="ascenderUsuario(${usuario.id})">
+                            ascender    
+                        </a>
+                    </li>`;
+    }
+
+    opciones += `<li>
+                    <a class="dropdown-item abridorModalExpulsion" href="#" role="button" data-id="${usuario.id}" data-nombre="${usuario.username}" data-fecha="${usuario.expulsadoHasta}">
+                        Expulsar
+                    </a>
+                </li>
+            </ul>
+        </div>`
+
+    fila.push(opciones);
+
+    console.log(tableUsers);
+    tableUsers.rows.add(fila);
+}
+
+function anadirFilaReporte(reporte){
+    const tableReports = window.tableReports;
+
+    if(!tableReports)
+        return;
+
+    let fila = [];
+
+    fila.push(reporte.id);
+    fila.push(reporte.usuarioReportado);
+    fila.push(reporte.fechaReporte);
+    fila.push(reporte.resuelto);
+    fila.push(reporte.fechaResolucion);
+    fila.push(reporte.mensaje);
+
+    let opciones = `<div class="dropdown">
+                        <button class="btn btn-sm" type="button" id="dropdownMenuButton"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                <path
+                                    d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" />
+                            </svg>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                            <li><button class="dropdown-item ver-detalles-btn" type="button"
+                                    onclick="abrirModalVerMasReporte(${reporte.id})"> Ver
+                                    Detalles </button>
+                            </li>`;
+
+    if(!reporte.resuelto)
+        opciones += `<li><button class="dropdown-item" type="button" onclick="abrirModal(${reporte.id})">Resolver</button></li>`;
+
+    opciones += `</ul>
+                </div>`;
+
+    fila.push(opciones);
+    tableReports.rows.add(fila);
+}
+
+function anadirFilaEvento(evento){
+    const tablaEvento = window.tablaEvento;
+
+    if(!tablaEvento)
+        return;
+
+    let fila = [];
+
+    fila.push(evento.id);
+    fila.push(evento.nombre);
+    fila.push(evento.fechaCierre);
+    fila.push(evento.estado);
+    fila.push(evento.seccion);
+
+    let opcinoes = `<div class="dropdown">
+                        <button class="btn btn-sm" type="button" th:id="'dropdownMenuButton-' + ${evento.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                            </svg>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                            <li><button class="dropdown-item boton-editar" onclick="modalModoEdicion(${evento.id})" type="button" data-bs-toggle="modal" data-bs-target="#modalCrearEvento">Editar</button></li>
+                            <li><button class="dropdown-item boton-editar" onclick="modalModoVerMas(${evento.id})" type="button" data-bs-toggle="modal" data-bs-target="#modalCrearEvento">Ver detalles</button></li>
+                            <li><a class="dropdown-item ${evento.estado != "Pendiente" ? "disabled":""}" id="botonDropdownDeterminarEvento-${evento.id}" href="${config.rootUrl}/admin/eventos/determinar/${evento.id}">Determinar</a></li>
+                            <li><button class="dropdown-item text-danger  ${evento.estado != "Pendiente" ? "disabled":""}" type="button" data-bs-toggle="modal" data-bs-target="#cancelarEventoModal-${evento.id}">Cancelar</button></li>
+                        </ul>
+                    </div>`;
+    fila.push(opcinoes);
+
+    tablaEvento.rows.add(fila);
+}

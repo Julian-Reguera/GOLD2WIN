@@ -1,7 +1,6 @@
 var mandando = false; //controla que no se pueda mandar varias veces el mismo formulario
 
 document.getElementById("btnSiguiente").addEventListener("click", function(event) {
-    console.log("submit");
     nombre = document.getElementById("firstName");
     apellidos = document.getElementById("lastName");
     username = document.getElementById("username");

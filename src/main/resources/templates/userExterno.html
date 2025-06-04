@@ -9,7 +9,7 @@
 <body class="d-flex flex-column h-100 ">
     <header th:replace="fragments/nav.html :: nav(null)"></header>
 
-    <main class="flex-shrink-0 scrollBarPerso" id = "contenedorGeneralUsuario">
+    <main class="d-flex flex-grow-1" id = "contenedorGeneralUsuario">
         <div class="container mt-5">
             <div class="d-flex align-items-center mb-4 justify-content-center">
                 <img id = "mostrarImagenUsuario" th:src="@{/user/{id}/pic(id=${user.id})}" alt="Foto de perfil" class="rounded-circle" width="120" height="120">
@@ -39,7 +39,7 @@
                     </div>
                     <div class="col-md-6">
                         <label for="password" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" id="password" th:value="${user.password}" readonly>
+                        <input type="password" class="form-control" id="password" value="*************************" readonly>
                     </div>
                 </div>
             </form>

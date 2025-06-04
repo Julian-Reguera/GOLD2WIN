@@ -19,9 +19,7 @@ document.getElementById("queryEventos").addEventListener("keypress", function(ev
         cargando = true;
 
         if (busqueda == "") { //si no hay nada escrito se cargan los eventos por defecto
-            console.log("busqueda vacia");
             if(buscado != null){
-                console.log("busqueda vacia2");
                 fechaInicio = new Date().toISOString();
                 buscado = null;
                 vaciarContenedorEventos();

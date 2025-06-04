@@ -26,11 +26,15 @@ document.getElementById("btn_determinar").addEventListener("click", function () 
     var data = {};
     Array.from(contendorVariables.children).forEach(function (child) {
         var input = child.querySelector("input");
+        let select = child.querySelector("select");
         if (input) {
             if (input.type === "number")
                 data[input.name] = parseFloat(parseFloat(input.value).toFixed(4));
             else
                 data[input.name] = input.value;
+        }
+        if(select){
+            data[select.name] = parseInt(select.value);
         }
     });
 

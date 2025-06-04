@@ -37,7 +37,6 @@ import es.ucm.fdi.iw.model.ParticipacionChat;
 import es.ucm.fdi.iw.model.Resultado;
 import es.ucm.fdi.iw.model.User;
 import es.ucm.fdi.iw.model.Variable;
-import es.ucm.fdi.iw.model.Transferable;
 import java.util.stream.Collectors;
 
 import java.util.Map;
@@ -102,8 +101,10 @@ public class EventoController {
                                                                                                           // que viene
                                                                                                           // la
                                                                                                           // fecha
-            @RequestParam int offset) {
+            @RequestParam int offset,
+            HttpSession session) {
 
+        long userId = ((User) session.getAttribute("u")).getId();
         Evento evento = entityManager.find(Evento.class, id);
         TypedQuery<FormulaApuesta> query;
         String queryEventos = "SELECT e FROM FormulaApuesta e WHERE e.fechaCreacion < :inicio AND e.evento.id = :id ORDER BY e.fechaCreacion ASC, e.id ASC";
@@ -124,8 +125,10 @@ public class EventoController {
             formulas.remove(10);
         }
 
+        List<FormulaApuesta.TransferPersonalizada> transferFormulas = formulas.stream().map(e -> e.toTransferPersonalizada(userId)).collect(Collectors.toList());
+
         Map<String, Object> response = new HashMap<>();
-        response.put("formulas", formulas.stream().map(Transferable::toTransfer).collect(Collectors.toList()));
+        response.put("formulas", transferFormulas);
         response.put("hayMasFormulas", hayMasFormulas);
 
         return response;
@@ -138,8 +141,10 @@ public class EventoController {
             @PathVariable long id,
             @RequestParam String busqueda,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime fechaInicio,
-            @RequestParam int offset) {
+            @RequestParam int offset, 
+            HttpSession session) {
 
+        long userId = ((User) session.getAttribute("u")).getId();
         boolean hayMasFormulas = false;
         Evento evento = entityManager.find(Evento.class, id);
 
@@ -171,8 +176,10 @@ public class EventoController {
             formulas.remove(10);
         }
 
+        // La respuesta es en funcion del usuario que la solicita (dinero apostado)
         Map<String, Object> response = new HashMap<>();
-        response.put("formulas", formulas.stream().map(Transferable::toTransfer).collect(Collectors.toList()));
+        List<FormulaApuesta.TransferPersonalizada> transferFormulas = formulas.stream().map(e -> e.toTransferPersonalizada(userId)).collect(Collectors.toList());
+        response.put("formulas", transferFormulas);
         response.put("hayMasFormulas", hayMasFormulas);
 
         return response;

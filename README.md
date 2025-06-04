@@ -30,8 +30,8 @@
 1. **Clonar el repositorio**
 
 ```bash
-git https://github.com/abrahaamg/IW.git
-cd IW
+git https://github.com/Julian-Reguera/GOLD2WIN.git
+cd GOLD2WIN
 ```
 
 2. **Compilar el proyecto**
@@ -44,8 +44,7 @@ mvn clean install
 mvn spring-boot:run
 ```
 
-4. **Abrir la aplicación**
-Busca https://localhost:8080 en el navegador.
+4. Busca https://localhost:8080 en el navegador.
 
 ## 📋Descripción del proyecto
 Gold2Win es una casa de apuestas en la cual se puede apostar a diferentes eventos que se pueden ir añadiendo. Estos eventos se clasifican en secciones como deportes, esports, juegos de mesa o cualquier cosa imaginable. 
@@ -137,7 +136,7 @@ En esta parte de la aplicación es donde se realiza todo lo relacionado con las 
 │   └── GET /login_error                   Página de error de login
 ├── register
 │   ├── GET /register                      Formulario de registro
-│   └── POST /register                     Envío de registro
+│   └── POST /register                     Crear un usuario
 ├── seccion
 │   ├── GET /seccion/{id}                  Ver eventos apostables
 │   ├── GET /seccion/{id}/pic              Obtener nombre imagen
@@ -148,10 +147,10 @@ En esta parte de la aplicación es donde se realiza todo lo relacionado con las 
 │   └── GET /misApuestas/cargarMas         AJAX: cargar más apuestas
 ├── user
 │   ├── GET /user/{id}                     Ver perfil (propio o ajeno)
-│   ├── POST /user/editar                  AJAX: editar datos usuario
 │   ├── GET /user/verificarUsername        AJAX: verificar username
 │   ├── GET /user/verificarEmail           AJAX: verificar email
-│   ├── POST /user/{id}                    AJAX: crear/modificar usuario
+│   ├── POST /user/{id}                    AJAX: modificar username/email usuario
+│   ├── POST /user/{id}/password           AJAX: modificar contraseña usuario
 │   ├── GET /user/{id}/pic                 Obtener imagen de usuario
 │   └── POST /user/{id}/pic                AJAX: cambiar imagen usuario
 ├── evento
@@ -204,13 +203,20 @@ En esta parte de la aplicación es donde se realiza todo lo relacionado con las 
         ├── GET /admin/reporte/{id}/determinar           AJAX: determinar castigo
         └── GET /admin/reportes/cargarDatosReporte/{id}  AJAX: cargar más datos del reporte
 ```
-## 🔧Recursos utilizados
-- https://www.web-leb.com/es/code/609 (Barra búsqueda todas las secciones. Se ha modificado un poco)
+## Cambios post examen
+Todos los cambios han sido hechos por Julián Reguera Peñalosa y se especifican en el archivo cambios_post_examen.md (hay muchos cambios que son eliminando codigo que no se utilizaba)
 
-- https://chatgpt.com/ : Sobretodo para entender como funciona bootstrap, html y css. Para detectar donde están los errores más rápido y para fragmentos de código básicos.
+## 🔧Recursos utilizados
+- https://www.web-leb.com/es/code/609 :Barra buscadora de index, apostar, chats, y todas las ventanas de administrador
+
+- https://codepen.io/MarkBoots/pen/RwLPXgJ : Para la forma de los mensajes de chats.
 
 - https://icons.getbootstrap.com/ (diferentes iconos usados en toda la web)
 )
+
+- https://github.com/fiduswriter/simple-datatables : Tablas de administración (usuarios/reportes/eventos)
+
+- https://github.com/flatpickr/flatpickr : Calendarios de crear evento
 
 - https://getbootstrap.com/docs/5.3/components/modal/ :Para pulsar en crear mi propia apuesta y apostar. 
 
@@ -218,4 +224,4 @@ En esta parte de la aplicación es donde se realiza todo lo relacionado con las 
 
 - https://getbootstrap.com/docs/5.3/components/navbar/#offcanvas : para el menú al contraerse la pagina.
 
-- https://codepen.io/MarkBoots/pen/RwLPXgJ : Para la forma de los mensajes de chats.
+- https://github.com/manuel-freire/iw : Plantilla inicial con ejemplos sobre la que se ha construido el proyecto

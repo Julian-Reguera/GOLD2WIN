@@ -99,8 +99,38 @@ public class FormulaApuesta implements Transferable<FormulaApuesta.Transfer> {
         private double cuotaDesfavorable;
     }
 
+    @Getter
+    @AllArgsConstructor
+    public static class TransferPersonalizada{
+        private long id;
+		private String nombre;
+        private String formula;
+        private double cuotaFaborable;
+        private double cuotaDesfavorable;
+
+        private int apostadoAFavor; //En centimos
+        private int apostadoEnContra; //En centimos
+    }
+
     public FormulaApuesta.Transfer toTransfer(){
         return new FormulaApuesta.Transfer(id, nombre, formula, calcularCuota(true), calcularCuota(false));
+    }
+
+    public FormulaApuesta.TransferPersonalizada toTransferPersonalizada(long idUsuario) {
+        int apostadoAFavor = 0;
+        int apostadoEnContra = 0;
+
+        for (Apuesta apuesta : apuestas) {
+            if (apuesta.getApostador().getId() == idUsuario) {
+                if (apuesta.isAFavor()) {
+                    apostadoAFavor += apuesta.getCantidad();
+                } else {
+                    apostadoEnContra += apuesta.getCantidad();
+                }
+            }
+        }
+
+        return new FormulaApuesta.TransferPersonalizada(id, nombre, formula, calcularCuota(true), calcularCuota(false), apostadoAFavor, apostadoEnContra);
     }
 
 }

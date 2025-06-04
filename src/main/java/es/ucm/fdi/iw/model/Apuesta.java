@@ -14,9 +14,29 @@ import jakarta.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @NamedQueries({
-    @NamedQuery(name = "Apuesta.getAllAfterDate", query = "SELECT e FROM Apuesta e WHERE e.fechaCreacion < :inicio AND e.apostador.id = :id ORDER BY e.fechaCreacion ASC"),
-    @NamedQuery(name = "Apuesta.getDeterminadaAfterDate", query = "SELECT e FROM Apuesta e WHERE e.fechaCreacion < :inicio AND e.formulaApuesta.resultado IN ('GANADO', 'PERDIDO') AND e.apostador.id = :id ORDER BY e.fechaCreacion ASC"),
-    @NamedQuery(name = "Apuesta.getPendienteAfterDate", query = "SELECT e FROM Apuesta e WHERE e.fechaCreacion < :inicio AND e.formulaApuesta.resultado = 'INDETERMINADO' AND e.apostador.id = :id ORDER BY e.fechaCreacion ASC")
+    @NamedQuery(
+        name = "Apuesta.getAllAfterDate",
+        query = "SELECT e FROM Apuesta e " +
+                "WHERE e.fechaCreacion < :inicio " +
+                "AND e.apostador.id = :id " +
+                "ORDER BY e.fechaCreacion ASC"
+    ),
+    @NamedQuery(
+        name = "Apuesta.getDeterminadaAfterDate",
+        query = "SELECT e FROM Apuesta e " +
+                "WHERE e.fechaCreacion < :inicio " +
+                "AND e.formulaApuesta.resultado IN ('GANADO', 'PERDIDO') " +
+                "AND e.apostador.id = :id " +
+                "ORDER BY e.fechaCreacion ASC"
+    ),
+    @NamedQuery(
+        name = "Apuesta.getPendienteAfterDate",
+        query = "SELECT e FROM Apuesta e " +
+                "WHERE e.fechaCreacion < :inicio " +
+                "AND e.formulaApuesta.resultado = 'INDETERMINADO' " +
+                "AND e.apostador.id = :id " +
+                "ORDER BY e.fechaCreacion ASC"
+    )
 })
 
 public class Apuesta implements Transferable<Apuesta.Transfer> {

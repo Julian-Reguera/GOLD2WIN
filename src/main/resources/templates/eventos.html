@@ -158,6 +158,13 @@
                             </div>
     
                             <input type="text" id="inputEtiqueta" class="input-texto-discreto p-2 m-0 flex-grow-1 resaltaHover" placeholder="Añadir etiqueta" style="cursor: pointer; border-radius: 7px;">
+
+                            <span id="botonAnadirEtiqueta" class="d-inline-flex texto-estilizado text-center ms-3 desaparece" style="cursor: pointer;min-width: 35px;user-select: none;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-square m-auto" viewBox="0 0 16 16">
+                                    <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                                </svg>
+                            </span>
                         </div>
                         
                         <div class="d-flex flex-column scrollBarPerso pt-2" id="listaEtiquetasModal" style="padding-left:64px;"></div>
@@ -178,6 +185,12 @@
                             <div id ="inputsEtiquetasModal" class="flex-grow-1" style="display: none;">
                                 <input id="inputVariable" type="text" class="texto-estilizado m-0 flex-grow-1" placeholder="Introduce nombre">
                                 <span id="tipoVariableModal" class="texto-estilizado text-center ms-3" style="cursor: pointer;min-width: 80px;user-select: none;">Numérica</span>
+                                <span id="botonAnadirVariable" class="d-inline-flex texto-estilizado text-center ms-3" style="cursor: pointer;min-width: 35px;user-select: none;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-square m-auto" viewBox="0 0 16 16">
+                                    <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                                </svg>
+                            </span>
                             </div>
                         </div>
                         
@@ -267,6 +280,8 @@
                 paginacion.style.flexWrap = "wrap";
             }
         });
+
+        window.tablaEvento = table;
     </script>
 
     <script th:src="@{/js/flatpickr.js}" src="js/flatpickr.js"></script>

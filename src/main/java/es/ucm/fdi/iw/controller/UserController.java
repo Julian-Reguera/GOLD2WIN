@@ -1,10 +1,7 @@
 package es.ucm.fdi.iw.controller;
 
 import es.ucm.fdi.iw.LocalData;
-import es.ucm.fdi.iw.model.Message;
-import es.ucm.fdi.iw.model.Transferable;
 import es.ucm.fdi.iw.model.User;
-import es.ucm.fdi.iw.model.User.Role;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,24 +25,19 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.*;
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * User management.
@@ -179,61 +171,6 @@ public class UserController {
 		}
 	}
 
-	@PostMapping("/editar")
-    @Transactional
-    @ResponseBody
-    public Map<String, Object> editarPerfil(@RequestBody JsonNode o, Model model, HttpSession session) throws IOException{
-        Map<String, Object> response = new HashMap<>();
-
-        User user = entityManager.find(User.class, ((User) session.getAttribute("u")).getId());
-
-        String username = o.get("username").asText();
-        String email = o.get("email").asText();
-        if(o.has("contrasenha")) {
-            String password = o.get("contrasenha").asText();
-            user.setPassword(encodePassword(password));
-        }
-
-        Long countUsername = entityManager
-            .createNamedQuery("User.existeUsername", Long.class)
-            .setParameter("username", username).setParameter("id", user.getId()).getSingleResult();
-        
-
-        if (countUsername > 0) {
-            response.put("success", false);
-            response.put("error", "username");
-            return response;
-        }
-
-        Long countEmail = entityManager
-            .createNamedQuery("User.existeEmail", Long.class)
-            .setParameter("email", email).setParameter("id", user.getId()).getSingleResult();
-
-        if (countEmail > 0) {
-            response.put("success", false);
-            response.put("error", "email");
-            return response;
-        }
-
-        user.setUsername(username);
-        user.setEmail(email);
-
-        entityManager.merge(user);
-        JsonNode imageDataNode = o.get("imageData");
-        if (imageDataNode != null && imageDataNode.has("image") && !imageDataNode.get("image").isNull()) {
-            String base64Image = imageDataNode.get("image").asText();
-            String filename = imageDataNode.has("filename") ? imageDataNode.get("filename").asText() : "";
-
-            if (!base64Image.isEmpty()) {
-                MultipartFile photo = adminController.convertirBase64AMultipartFile(base64Image, filename);
-                adminController.setPic(photo, "user", "" + user.getId());
-            }
-        }
-
-        response.put("success", true);
-        return response;
-    }
-
 	@GetMapping("/verificarUsername")
     public ResponseEntity<?> verificarUsername(@RequestParam String username, @RequestParam Long id) {
         Long countUsername = entityManager
@@ -256,57 +193,93 @@ public class UserController {
         return ResponseEntity.ok().body("{\"existe\": " + existe + "}");
     }
 
-	/**
-	 * Alter or create a user
-	 */
+	//Editar perfil de usuario
 	@PostMapping("/{id}")
 	@Transactional
-	public String postUser(
+	@ResponseBody
+	public Map<String, Object> postUser(
 			HttpServletResponse response,
 			@PathVariable long id,
-			@ModelAttribute User edited,
-			@RequestParam(required = false) String pass2,
+			@RequestBody JsonNode o,
 			Model model, HttpSession session) throws IOException {
 
+		Map<String, Object> respuesta = new HashMap<>();
 		User requester = (User) session.getAttribute("u");
 		User target = null;
-		if (id == -1 && requester.hasRole(Role.ADMIN)) {
-			// create new user with random password
-			target = new User();
-			target.setPassword(encodePassword(generateRandomBase64Token(12)));
-			target.setEnabled(true);
-			entityManager.persist(target);
-			entityManager.flush(); // forces DB to add user & assign valid id
-			id = target.getId(); // retrieve assigned id from DB
-		}
+
+		String username = o.get("username").asText();
+		String email = o.get("email").asText();
 
 		// retrieve requested user
 		target = entityManager.find(User.class, id);
 		model.addAttribute("user", target);
 
-		if (requester.getId() != target.getId() &&
-				!requester.hasRole(Role.ADMIN)) {
+		if (requester.getId() != target.getId()) {
 			throw new NoEsTuPerfilException();
 		}
 
-		if (edited.getPassword() != null) {
-			if (!edited.getPassword().equals(pass2)) {
-				// FIXME: complain
-			} else {
-				// save encoded version of password
-				target.setPassword(encodePassword(edited.getPassword()));
-			}
-		}
-		target.setUsername(edited.getUsername());
-		target.setFirstName(edited.getFirstName());
-		target.setLastName(edited.getLastName());
+		Long countUsername = entityManager
+            .createNamedQuery("User.existeUsername", Long.class)
+            .setParameter("username", username).setParameter("id", target.getId()).getSingleResult();
+		
+		if (countUsername > 0) {
+            respuesta.put("success", false);
+            respuesta.put("error", "username");
+            return respuesta;
+        }
+
+		Long countEmail = entityManager
+            .createNamedQuery("User.existeEmail", Long.class)
+            .setParameter("email", email).setParameter("id", target.getId()).getSingleResult();
+
+		if (countEmail > 0) {
+            respuesta.put("success", false);
+            respuesta.put("error", "email");
+            return respuesta;
+        }
+
+		target.setUsername(username);
+        target.setEmail(email);
 
 		// update user session so that changes are persisted in the session, too
 		if (requester.getId() == target.getId()) {
 			session.setAttribute("u", target);
 		}
 
-		return "user";
+		respuesta.put("success", true);
+        return respuesta;
+	}
+
+	//Guardamos la contraseña del usuario en un post aparte
+	@PostMapping("/{id}/password")
+	@Transactional
+	public String postPassword(
+			HttpServletResponse response,
+			@PathVariable long id,
+			@RequestBody JsonNode o,
+			Model model, HttpSession session) throws IOException {
+
+		User requester = (User) session.getAttribute("u");
+		User target = null;
+		String password = o.get("password").asText();
+
+		// retrieve requested user
+		target = entityManager.find(User.class, id);
+		model.addAttribute("user", target);
+
+		if (requester.getId() != target.getId()) {
+			throw new NoEsTuPerfilException();
+		}
+
+		log.info("Updating password for user {}", id);
+		target.setPassword(encodePassword(password));
+
+		// update user session so that changes are persisted in the session, too
+		if (requester.getId() == target.getId()) {
+			session.setAttribute("u", target);
+		}
+
+		return "Ok";
 	}
 
 	/**
@@ -342,110 +315,36 @@ public class UserController {
 	 * @throws IOException
 	 */
 	@PostMapping("{id}/pic")
+	@Transactional
 	@ResponseBody
-	public String setPic(@RequestParam("photo") MultipartFile photo, @PathVariable long id,
+	public Map<String, Object> setPic(@RequestBody JsonNode o, @PathVariable long id,
 			HttpServletResponse response, HttpSession session, Model model) throws IOException {
+		Map<String, Object> respuesta = new HashMap<>();
 
 		User target = entityManager.find(User.class, id);
 		model.addAttribute("user", target);
 
 		// check permissions
 		User requester = (User) session.getAttribute("u");
-		if (requester.getId() != target.getId() &&
-				!requester.hasRole(Role.ADMIN)) {
+		if (requester.getId() != target.getId()) {
 			throw new NoEsTuPerfilException();
 		}
 
 		log.info("Updating photo for user {}", id);
-		File f = localData.getFile("user", "" + id + ".jpg");
-		if (photo.isEmpty()) {
-			log.info("failed to upload photo: emtpy file?");
-		} else {
-			try (BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(f))) {
-				byte[] bytes = photo.getBytes();
-				stream.write(bytes);
-				log.info("Uploaded photo for {} into {}!", id, f.getAbsolutePath());
-			} catch (Exception e) {
-				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				log.warn("Error uploading " + id + " ", e);
-			}
-		}
-		return "{\"status\":\"photo uploaded correctly\"}";
-	}
 
-	/**
-	 * Returns JSON with all received messages
-	 */
-	@GetMapping(path = "received", produces = "application/json")
-	@Transactional // para no recibir resultados inconsistentes
-	@ResponseBody // para indicar que no devuelve vista, sino un objeto (jsonizado)
-	public List<Message.Transfer> retrieveMessages(HttpSession session) {
-		long userId = ((User) session.getAttribute("u")).getId();
-		User u = entityManager.find(User.class, userId);
-		log.info("Generating message list for user {} ({} messages)",
-				u.getUsername(), u.getReceived().size());
-		return u.getReceived().stream().map(Transferable::toTransfer).collect(Collectors.toList());
-	}
+		JsonNode imageDataNode = o.get("imageData");
+        if (imageDataNode != null && imageDataNode.has("image") && !imageDataNode.get("image").isNull()) {
+            String base64Image = imageDataNode.get("image").asText();
+            String filename = imageDataNode.has("filename") ? imageDataNode.get("filename").asText() : "";
 
-	/**
-	 * Returns JSON with count of unread messages
-	 */
-	@GetMapping(path = "unread", produces = "application/json")
-	@ResponseBody
-	public String checkUnread(HttpSession session) {
-		long userId = ((User) session.getAttribute("u")).getId();
-		long unread = entityManager.createNamedQuery("Message.countUnread", Long.class)
-				.setParameter("userId", userId)
-				.getSingleResult();
-		session.setAttribute("unread", unread);
-		return "{\"unread\": " + unread + "}";
-	}
+            if (!base64Image.isEmpty()) {
+                MultipartFile photo = adminController.convertirBase64AMultipartFile(base64Image, filename);
+                adminController.setPic(photo, "user", "" + requester.getId());
+            }
+        }
 
-	/**
-	 * Posts a message to a user.
-	 * 
-	 * @param id of target user (source user is from ID)
-	 * @param o  JSON-ized message, similar to {"message": "text goes here"}
-	 * @throws JsonProcessingException
-	 */
-	@PostMapping("/{id}/msg")
-	@ResponseBody
-	@Transactional
-	public String postMsg(@PathVariable long id,
-			@RequestBody JsonNode o, Model model, HttpSession session)
-			throws JsonProcessingException {
+        respuesta.put("success", true);
 
-		String text = o.get("message").asText();
-		User u = entityManager.find(User.class, id);
-		User sender = entityManager.find(
-				User.class, ((User) session.getAttribute("u")).getId());
-		model.addAttribute("user", u);
-
-		// construye mensaje, lo guarda en BD
-		Message m = new Message();
-		m.setRecipient(u);
-		m.setSender(sender);
-		m.setDateSent(LocalDateTime.now());
-		m.setText(text);
-		entityManager.persist(m);
-		entityManager.flush(); // to get Id before commit
-
-		ObjectMapper mapper = new ObjectMapper();
-		/*
-		 * // construye json: método manual
-		 * ObjectNode rootNode = mapper.createObjectNode();
-		 * rootNode.put("from", sender.getUsername());
-		 * rootNode.put("to", u.getUsername());
-		 * rootNode.put("text", text);
-		 * rootNode.put("id", m.getId());
-		 * String json = mapper.writeValueAsString(rootNode);
-		 */
-		// persiste objeto a json usando Jackson
-		String json = mapper.writeValueAsString(m.toTransfer());
-
-		log.info("Sending a message to {} with contents '{}'", id, json);
-
-		messagingTemplate.convertAndSend("/user/" + u.getUsername() + "/queue/updates", json);
-		return "{\"result\": \"message sent.\"}";
+		return respuesta;
 	}
 }

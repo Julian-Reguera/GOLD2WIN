@@ -93,6 +93,7 @@ public class AdminController {
         List<User> usuarios = entityManager.createQuery(queryUsuarios, User.class).getResultList();
 
         model.addAttribute("usuarios", usuarios);
+        model.addAttribute("topics", "admin/users");
 
         return "usuarios";
     }
@@ -100,12 +101,17 @@ public class AdminController {
     @PostMapping("/usuarios/{id}/banear")
     @ResponseBody
     @Transactional
-    public ResponseEntity<JsonNode> banearUsuario(@PathVariable long id, @RequestBody JsonNode o) {
+    public ResponseEntity<JsonNode> banearUsuario(@PathVariable long id, @RequestBody JsonNode o, HttpSession session) {
         User user = entityManager.find(User.class, id);
+        User sesionIniciada = (User) session.getAttribute("u");
         int tipo = o.get("tipo").asInt(); // 0 = nueva fecha, 1 = cantidad de minutos
 
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
+        }
+
+        if (id == sesionIniciada.getId()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No puedes expulsarte a ti mismo");
         }
 
         OffsetDateTime duracionFinal = user.getExpulsadoHasta();
@@ -170,6 +176,7 @@ public class AdminController {
         List<Reporte> reportes = entityManager.createQuery(queryReportes, Reporte.class).getResultList();
 
         model.addAttribute("reportes", reportes);
+        model.addAttribute("topics", "admin/reportes");
 
         return "reportes";
     }
@@ -229,6 +236,7 @@ public class AdminController {
 
         model.addAttribute("eventos", eventos);
         model.addAttribute("secciones", secciones);
+        model.addAttribute("topics", "admin/eventos");
 
         return "eventos";
     }
@@ -507,6 +515,20 @@ public class AdminController {
             }
 
             entityManager.merge(evento);
+        }
+
+        //Notifico por ws a los administradores de que se ha creado un evento
+        Map<String, Object> mensajeWs = new HashMap<>();
+        mensajeWs.put("tipoEvento", "eventoCreado");
+        mensajeWs.put("evento", evento.toTransferAdministracion());
+        ObjectMapper mapper = new ObjectMapper();
+        String json;
+
+        try {
+            json = mapper.writeValueAsString(mensajeWs);
+            messagingTemplate.convertAndSend("/topic/admin/eventos", json);
+        } catch (JsonProcessingException e) {
+            log.error("Error al enviar el mensaje WS de evento creado", e);
         }
 
         entityManager.flush();

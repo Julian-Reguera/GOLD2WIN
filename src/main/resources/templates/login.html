@@ -29,7 +29,7 @@
 
             <a class ="mx-auto" href="#">¿Olvidaste tu contraseña?</a>
         </form>
-        <div class = "d-flex flex-grow-0" id="debugUsersBar">
+        <div class = "d-flex flex-grow-0" id="debugUsersBar" th:if="${application.debug}">
             <form class="d-flex" th:action="@{/login}" method="post">
                 <input type="hidden" name="username" value="Jose Luis">
                 <input type="hidden" name="password" value="aa">

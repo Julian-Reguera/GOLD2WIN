@@ -85,7 +85,7 @@
                                         ascender    
                                     </a>
                                 </li>
-                                <li>
+                                <li th:if="${session.u.id} != usuario.id">
                                     <a class="dropdown-item abridorModalExpulsion" href="#" role="button" th:data-id="${usuario.id}" th:data-nombre="${usuario.username}" th:data-fecha="${usuario.expulsadoHasta}">
                                         Expulsar
                                     </a>
@@ -123,6 +123,7 @@
                 paginacion.style.gap = "1rem";
                 paginacion.style.flexWrap = "wrap";
             }
+            window.tableUsers = tableUsers;
         });
     </script>
 

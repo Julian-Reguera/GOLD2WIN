@@ -24,8 +24,12 @@
         <div id="contendorVariables" class="d-flex flex-wrap mx-auto" style="max-width: 1200px ;">
             <div th:each="variable,i: ${eventoSel.variables}" class="mb-3 estilo-contenedor-adaptable p-2 m-3 flex-grow-1" style="width: 300px;">
                 <label th:for="${'_' + variable.nombre}" class="form-label mb-1" th:text="${variable.nombre}">error</label>
-                <input th:unless="${variable.numerico}" type="text" class="form-control" th:id="${'_' + variable.nombre}" th:name="${variable.nombre}" placeholder="Ingrese texto" required>
-                <input th:if="${variable.numerico}" type="number" class="form-control" th:id="${'_' + variable.nombre}" th:name="${variable.nombre}" placeholder="Ingrese un numero" required>
+                <input th:if="${variable.tipo.name() == 'TEXTO'}" type="text" class="form-control" th:id="${'_' + variable.nombre}" th:name="${variable.nombre}" placeholder="Ingrese texto" required>
+                <input th:if="${variable.tipo.name() == 'NUMERICO'}" type="number" class="form-control" th:id="${'_' + variable.nombre}" th:name="${variable.nombre}" placeholder="Ingrese un numero" required>
+                <select th:if="${variable.tipo.name() == 'BOOLEANO'}" th:id="${'_' + variable.nombre}" th:name="${variable.nombre}" class="form-select" required>
+                    <option value="0">Falso</option>
+                    <option value="1">Verdadero</option>
+                </select>
                 <div class="invalid-feedback">Campo obligatorio</div>
             </div>
         </div>

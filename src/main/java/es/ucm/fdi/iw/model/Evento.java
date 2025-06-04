@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,12 +16,39 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @NamedQueries({
-        @NamedQuery(name = "Evento.getAllAfterDate", query = "SELECT e FROM Evento e WHERE e.fechaCierre > :inicio AND e.fechaCreacion < :inicio ORDER BY e.fechaCierre ASC"),
-        @NamedQuery(name = "Evento.getAllAfterDateInSeccion", query = "SELECT e FROM Evento e WHERE (e.fechaCierre > :inicio AND e.fechaCreacion < :inicio AND e.seccion.id = :seccion) ORDER BY e.fechaCierre ASC"),
-        @NamedQuery(name = "Evento.getBusqueda", query = "SELECT e FROM Evento e WHERE e.fechaCierre > :inicio AND e.fechaCreacion < :inicio AND (LOWER(e.nombre) LIKE LOWER(:nombre)) ORDER BY e.fechaCierre ASC"),
-        @NamedQuery(name = "Evento.getBusquedaInSeccion", query = "SELECT e FROM Evento e WHERE e.fechaCierre > :inicio AND e.fechaCreacion < :inicio AND e.seccion.id = :seccionId AND (LOWER(e.nombre) LIKE LOWER(:nombre)) ORDER BY e.fechaCierre ASC")
+    @NamedQuery(
+        name = "Evento.getAllAfterDate",
+        query = "SELECT e FROM Evento e " +
+                "WHERE e.fechaCierre > :inicio " +
+                "AND e.fechaCreacion < :inicio " +
+                "ORDER BY e.fechaCierre ASC"
+    ),
+    @NamedQuery(
+        name = "Evento.getAllAfterDateInSeccion",
+        query = "SELECT e FROM Evento e " +
+                "WHERE e.fechaCierre > :inicio " +
+                "AND e.fechaCreacion < :inicio " +
+                "AND e.seccion.id = :seccion " +
+                "ORDER BY e.fechaCierre ASC"
+    ),
+    @NamedQuery(
+        name = "Evento.getBusqueda",
+        query = "SELECT e FROM Evento e " +
+                "WHERE e.fechaCierre > :inicio " +
+                "AND e.fechaCreacion < :inicio " +
+                "AND LOWER(e.nombre) LIKE LOWER(:nombre) " +
+                "ORDER BY e.fechaCierre ASC"
+    ),
+    @NamedQuery(
+        name = "Evento.getBusquedaInSeccion",
+        query = "SELECT e FROM Evento e " +
+                "WHERE e.fechaCierre > :inicio " +
+                "AND e.fechaCreacion < :inicio " +
+                "AND e.seccion.id = :seccionId " +
+                "AND LOWER(e.nombre) LIKE LOWER(:nombre) " +
+                "ORDER BY e.fechaCierre ASC"
+    )
 })
-
 public class Evento implements Transferable<Evento.Transfer> {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gen")
@@ -66,9 +94,25 @@ public class Evento implements Transferable<Evento.Transfer> {
         private Long seccionId;
     }
 
+    @Getter
+    @AllArgsConstructor
+    public static class TransferAdministracion {
+        private long id;
+        private String nombre;
+        private String fechaCierre;
+        private String estado;
+        private String seccion;
+    }
+
     @Override
     public Transfer toTransfer() {
         return new Transfer(id, nombre, fechaCreacion, fechaCierre, cancelado, etiquetas, seccion.getId());
+    }
+
+    public TransferAdministracion toTransferAdministracion() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        String estado = cancelado ? "Cancelado" : (determinado ? "Determinado" : "Pendiente");
+        return new TransferAdministracion(id, nombre, fechaCierre.format(formatter), estado, seccion.getNombre());
     }
 
     @Override
@@ -88,5 +132,4 @@ public class Evento implements Transferable<Evento.Transfer> {
     public boolean isPasado() {
         return fechaCierre.isBefore(OffsetDateTime.now());
     }
-
 }

@@ -99,6 +99,8 @@ function introducirApuesta(apuesta){
     let tipoApuesta = apuesta.afavor ? "a favor" : "en contra";
     let cuotaUtilizada = apuesta.afavor ? apuesta.cuotaFaborable : apuesta.cuotaDesfavorable;
     let diferenciaDinero = 0;
+    let cantidadQueGanaria = cuotaUtilizada * apuesta.cantidad;
+    cantidadQueGanaria = Math.trunc(cantidadQueGanaria);
    
     if(apuesta.estado == "Perdida")
         diferenciaDinero = apuesta.cantidad ;
@@ -129,7 +131,7 @@ function introducirApuesta(apuesta){
                         
                         <div class="left d-flex align-items-center">
                             <div class="headRowBettingBoxLeftElement fw-bold me-2">
-                            ${Math.trunc(apuesta.cantidad / 100)},${apuesta.cantidad % 100}€
+                            ${Math.trunc(apuesta.cantidad / 100)},${apuesta.cantidad % 100}€ (${Math.trunc(cantidadQueGanaria / 100)},${cantidadQueGanaria % 100}€)
                             </div>
                             <div class="fw-semibold text-uppercase" >
                                 (#<span>${apuesta.id}</span>)
@@ -199,4 +201,58 @@ function introducirApuesta(apuesta){
     divApuesta.innerHTML = html;
 
     contenedor.insertBefore(divApuesta, botonVerMas);
+}
+
+/*FUNCIONES PARA ACTUALIZAR EL TIEMPO QUE QUEDA PARA QUE CONCLUYA UNA APUESTA*/
+function actualizarTiempoRestanteApuesta() {
+    const elementosTiempoRestante = document.querySelectorAll(".tiempo-restante-apuesta");
+    elementosTiempoRestante.forEach((elemento) => {
+        const fechaEventoStr = elemento.getAttribute("data-fecha-evento-apuesta");  
+        if (!fechaEventoStr) return;
+
+        // Convertir la cadena a una fecha en JavaScript
+        const fechaEvento = new Date(fechaEventoStr.replace(" ", "T")); // Reemplaza el espacio con 'T' para compatibilidad
+
+        // Obtener la fecha actual
+        const ahora = new Date();
+
+        // Calcular la diferencia en milisegundos
+        const diferencia = fechaEvento - ahora;
+
+        if (diferencia <= 0) {
+            /*elemento.textContent = "Evento iniciado";
+            return;*/
+            // Convertir la diferencia en días, horas y minutos
+            const dias = -Math.floor(diferencia / (1000 * 60 * 60 * 24));
+            const horas = -Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutos = -Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+            // Mostrar la salida en el formato adecuado
+            if (dias > 0) {
+                elemento.textContent = `${dias} días`;
+            } else {
+                elemento.textContent = `${horas}h ${minutos}m`;
+            }
+        }
+
+        else{
+            // Convertir la diferencia en días, horas y minutos
+            const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+            const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+            // Mostrar la salida en el formato adecuado
+            if (dias > 0) {
+                elemento.textContent = `${dias} días`;
+            } else {
+                elemento.textContent = `${horas}h ${minutos}m`;
+            }
+        }
+        
+        
+    });
+}
+
+var tiempoRestanteAux = document.querySelectorAll(".tiempo-restante-apuesta");
+if(tiempoRestanteAux.length != 0){
+    actualizarTiempoRestanteApuesta();
+    setInterval(actualizarTiempoRestante1, 60000); // Actualizar cada minuto
 }

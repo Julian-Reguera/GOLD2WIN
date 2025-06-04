@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -23,7 +24,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.ucm.fdi.iw.AppConfig;
 import es.ucm.fdi.iw.LocalData;
@@ -38,6 +41,9 @@ import java.util.Map;
 public class RootController {
 
     private final AuthenticationManager authenticationManagerBean;
+
+    @Autowired
+	private SimpMessagingTemplate messagingTemplate;
 
     private final AppConfig appConfig;
 
@@ -164,6 +170,20 @@ public class RootController {
         entityManager.persist(user);
         entityManager.flush();
 
+        Map<String, Object> message = new HashMap<>();
+        message.put("tipoEvento", "newUser");
+        message.put("user", user.toTransfer());
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json;
+
+        try {
+            json = mapper.writeValueAsString(message);
+            messagingTemplate.convertAndSend("/topic/admin/users", json);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        
         response.put("success", true);
         return response;
     }

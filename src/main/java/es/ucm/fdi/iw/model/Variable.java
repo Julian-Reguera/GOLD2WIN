@@ -11,16 +11,20 @@ import jakarta.persistence.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Variable implements Transferable<Variable.Transfer>{
+public class Variable implements Transferable<Variable.Transfer> {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gen")
     @SequenceGenerator(name = "gen", sequenceName = "gen")
     private Long id;
-    
+
     private String nombre;
-    private String resolucion; // lo almacenamos como string para no tener que crear una tabla para cada tipo de variable y después lo parseamos en java
-    private boolean numerico;  // true si la variable es numérica, false si es booleana
-    
+    private String resolucion; // lo almacenamos como string para no tener que crear una tabla para cada tipo
+                               // de variable y después lo parseamos en java
+    private boolean numerico; // true si la variable es numérica, false si es booleana
+
+    @Enumerated(EnumType.STRING)
+    private TipoVariable tipo;
+
     @ManyToOne
     @JoinColumn(name = "id_evento")
     private Evento evento;
@@ -28,11 +32,12 @@ public class Variable implements Transferable<Variable.Transfer>{
     @Getter
     @AllArgsConstructor
     public static class Transfer {
-		private String nombre;
+        private String nombre;
         private boolean numerico;
+        private String tipo;
     }
 
     public Transfer toTransfer() {
-        return new Transfer(nombre, numerico);
+        return new Transfer(nombre, numerico, tipo.name());
     }
 }

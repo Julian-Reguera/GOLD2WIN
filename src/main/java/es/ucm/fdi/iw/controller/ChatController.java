@@ -314,7 +314,14 @@ public class ChatController {
         entityManager.persist(reporte);
         entityManager.flush();
 
-        response.put("status", "ok");
+        //Notifico a los administradores para que se actualice la vista de reportes
+        Map<String, Object> wsMessage = new HashMap<>();
+        wsMessage.put("tipoEvento", "newReporte");
+        wsMessage.put("reporte", reporte.toTransfer());
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(wsMessage);
+        messagingTemplate.convertAndSend("/topic/admin/reportes", json);
 
         return response;
     }

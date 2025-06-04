@@ -3,6 +3,7 @@ var listaEtiquetas = new Set([]);
 var listaVariables = new Set([]);
 var listaNombresVariables = new Set([]);
 var tipoVariableModal = true; // false = texto, true = numerico
+var tipoVariableModalExtra = "NUMERICO";
 var cargando = false;
 var creando = false; //Indica si se está creando evento o editando uno existente
 var viendoMas = false;
@@ -11,24 +12,26 @@ var id_evento_editado = -1;
 var _datepicker;
 var _timepicker;
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("inputEtiqueta");
+    const boton = document.getElementById("botonAnadirEtiqueta");
 
-    document.getElementById("timepicker").addEventListener("change", function() {
+    document.getElementById("timepicker").addEventListener("change", function () {
         if (!isValidTime(this.value)) {
             _timepicker.setDate(new Date().getDate() + 1, true);
         }
-        else{
+        else {
             actualizarTextoFecha();
-        } 
+        }
     });
-    
-    document.getElementById("datepicker").addEventListener("change", function() {
+
+    document.getElementById("datepicker").addEventListener("change", function () {
         if (!isValidDate(this.value)) {
             _datepicker.setDate(new Date().getDate() + 1, true);
         }
-        else{
+        else {
             actualizarTextoFecha();
-        } 
+        }
     });
 
     configurarflatpickr(new Date());
@@ -37,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function() {
         elemento.addEventListener("click", function () {
             const idEvento = btn.getAttribute("data-id-evento");
 
-            if(id_evento_editado != idEvento){
+            if (id_evento_editado != idEvento) {
                 id_evento_editado = idEvento;
 
                 if (isDarkMode) {
@@ -51,57 +54,65 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     });
+
+    input.addEventListener("focus", () => {
+        boton.classList.remove("desaparece");
+    });
+
+    input.addEventListener("blur", () => {
+        boton.classList.add("desaparece");
+    });
 });
 
-function configurarflatpickr(fecha){
+function configurarflatpickr(fecha) {
 
     _datepicker = flatpickr("#datepicker", {
-        locale: "es",  
-        dateFormat: "Y-m-d",         
+        locale: "es",
+        dateFormat: "Y-m-d",
         altInput: false,
-        minDate: creando ? new Date(): null,
-        defaultDate: fecha,             
+        minDate: creando ? new Date() : null,
+        defaultDate: fecha,
         allowInput: true,
         theme: isDarkMode ? "dark" : "light",
-        onOpen: function(selectedDates, dateStr, instance) {
+        onOpen: function (selectedDates, dateStr, instance) {
             instance.input.classList.add("focused");
         },
-        onClose: function(selectedDates, dateStr, instance) {
+        onClose: function (selectedDates, dateStr, instance) {
             instance.input.classList.remove("focused");
 
             if (!isValidDate(dateStr)) {
                 _datepicker.setDate(new Date(), true);
             }
-            else{
+            else {
                 actualizarTextoFecha();
-            } 
+            }
         },
     });
-    
+
     _timepicker = flatpickr("#timepicker", {
         viewMode: 'clock',
         altInput: false,
         allowInput: true,
         enableTime: true,
         noCalendar: true,
-        defaultDate: fecha, 
-        dateFormat: "H:i", 
-        time_24hr: true ,  
+        defaultDate: fecha,
+        dateFormat: "H:i",
+        time_24hr: true,
         theme: isDarkMode ? "dark" : "light",
-        onOpen: function(selectedDates, dateStr, instance) {
+        onOpen: function (selectedDates, dateStr, instance) {
             instance.input.classList.add("focused");
         },
-        onClose: function(selectedDates, dateStr, instance) {
+        onClose: function (selectedDates, dateStr, instance) {
             instance.input.classList.remove("focused");
 
             if (!isValidTime(dateStr)) {
                 _timepicker.setDate(new Date(), true);
             }
-            else{
+            else {
                 actualizarTextoFecha();
-            } 
+            }
         },
-        onReady: function(selectedDates, dateStr, instance) {
+        onReady: function (selectedDates, dateStr, instance) {
             actualizarTextoFecha();
         }
     });
@@ -121,8 +132,8 @@ function isValidTime(timeStr) {
 
 /*FUNCIONES PARA ALTERNAR EL MODO EDICION Y EL MODO CREACION DEL MODAL*/
 
-function modalModoCreacion(){
-    if(cargando == false){
+function modalModoCreacion() {
+    if (cargando == false) {
         viendoMas = false;
         creando = true;
         id_evento_editado = -1;
@@ -133,15 +144,15 @@ function modalModoCreacion(){
         campoTitulo.tabIndex = 0;
         document.getElementById('seccionSelect').disabled = false;
         document.getElementById('inputEtiqueta').disabled = false;
-        document.getElementById("textoFechaModal").classList.add("resaltaHover"); 
-        document.getElementById("inputEtiqueta").classList.add("resaltaHover"); 
-        document.getElementById("textoVariablesModal").classList.add("resaltaHover"); 
+        document.getElementById("textoFechaModal").classList.add("resaltaHover");
+        document.getElementById("inputEtiqueta").classList.add("resaltaHover");
+        document.getElementById("textoVariablesModal").classList.add("resaltaHover");
         document.getElementById("submit-form-eventos").classList.remove("invisible");
-        document.getElementById("textoVariablesModal").textContent = "Añadir variable"; 
+        document.getElementById("textoVariablesModal").textContent = "Añadir variable";
     }
 }
 
-function modalModoEdicion(id){
+function modalModoEdicion(id) {
     if(cargando == false){
         viendoMas = false;
         creando = false;
@@ -170,7 +181,7 @@ function modalModoEdicion(id){
             });
 
             data.variables.forEach((variable) => {
-                anadirVariableAlModal({"nombre":variable.nombre,"numerica":variable.numerico}, false);
+                anadirVariableAlModal({"nombre":variable.nombre,"numerica":variable.numerico, "tipo":variable.tipo}, false);
             });
 
             cargando = false;
@@ -181,7 +192,7 @@ function modalModoEdicion(id){
     }
 }
 
-function modalModoVerMas(id){
+function modalModoVerMas(id) {
     if(cargando == false){
         creando = false;
         viendoMas = true;
@@ -211,7 +222,7 @@ function modalModoVerMas(id){
             });
 
             data.variables.forEach((variable) => {
-                anadirVariableAlModal({"nombre":variable.nombre,"numerica":variable.numerico}, false);
+                anadirVariableAlModal({"nombre":variable.nombre,"numerica":variable.numerico, "tipo":variable.tipo}, false);
             });
 
             cargando = false;
@@ -224,23 +235,23 @@ function modalModoVerMas(id){
 }
 
 /*FUNCIONES PARA EL MENU DEL MODAL*/
-document.getElementById("textoFechaModal").addEventListener("click", function() {
-    if(!viendoMas){
+document.getElementById("textoFechaModal").addEventListener("click", function () {
+    if (!viendoMas) {
         document.getElementById("textoFechaModal").style.display = "none";
         document.getElementById("inputsFechaModal").style.display = "flex";
         document.getElementById('timepicker').focus();
     }
 });
 
-document.getElementById("textoVariablesModal").addEventListener("click", function() {
-    if(!viendoMas){
+document.getElementById("textoVariablesModal").addEventListener("click", function () {
+    if (!viendoMas) {
         document.getElementById("textoVariablesModal").style.display = "none";
         document.getElementById("inputsEtiquetasModal").style.display = "flex";
         document.getElementById('inputVariable').focus();
     }
 });
 
-function actualizarTextoFecha(){
+function actualizarTextoFecha() {
     const opciones = {
         weekday: 'long',   // lunes, martes...
         day: 'numeric',
@@ -258,14 +269,14 @@ function actualizarTextoFecha(){
     spanHora.textContent = formatearHora(horaInput.value);
 }
 
-function formatearHora(hora){
+function formatearHora(hora) {
     const partes = hora.split(":");
     const horas = parseInt(partes[0], 10);
     const minutos = parseInt(partes[1], 10);
     var salida = "";
-    salida = `${Math.trunc(partes[0]%12)}:${partes[1]}`;
+    salida = `${Math.trunc(partes[0] % 12)}:${partes[1]}`;
 
-    if(horas <= 12)
+    if (horas <= 12)
         salida += " am";
     else
         salida += " pm";
@@ -277,7 +288,7 @@ function formatearHora(hora){
 const select = document.getElementById('seccionSelect');
 
 select.addEventListener('focus', () => {
-    if(creando){
+    if (creando) {
         select.classList.remove('selectDiscreto');
         select.classList.remove('resaltaHover');
     }
@@ -291,19 +302,19 @@ select.addEventListener('blur', () => {
 /*CODIGO PARA EL MENU*/
 var paginaActual = "Eventos";
 
-document.getElementById("botonEventos").addEventListener("click", function() {
+document.getElementById("botonEventos").addEventListener("click", function () {
     cambiarMenu("Eventos");
 });
 
-document.getElementById("botonEtiquetas").addEventListener("click", function() {
+document.getElementById("botonEtiquetas").addEventListener("click", function () {
     cambiarMenu("Etiquetas");
 });
 
-document.getElementById("botonVariables").addEventListener("click", function() {
+document.getElementById("botonVariables").addEventListener("click", function () {
     cambiarMenu("Variables");
 });
 
-function cambiarMenu(paginaElegida){
+function cambiarMenu(paginaElegida) {
     document.getElementById("textoVariablesModal").style.display = "flex";
     document.getElementById("inputsEtiquetasModal").style.display = "none";
 
@@ -320,28 +331,44 @@ function cambiarMenu(paginaElegida){
 /*AÑADIR ETIQUETAS Y VARIABLES MODAL*/
 const inputEtiqueta = document.getElementById("inputEtiqueta");
 const inputVariable = document.getElementById("inputVariable");
+const botonAnadirEtiqueta = document.getElementById("botonAnadirEtiqueta");
+const botonAnadirVariable = document.getElementById("botonAnadirVariable");
 
-inputEtiqueta.addEventListener("keydown", function(event) {
+inputEtiqueta.addEventListener("keydown", function (event) {
     if (event.key === 'Enter' && inputEtiqueta.value.trim() !== "") {
         inputEtiqueta.value = inputEtiqueta.value.replace(/\s+/g, "_");
-        anadirEtiquetaAlModal(inputEtiqueta.value.trim(),true);
+        anadirEtiquetaAlModal(inputEtiqueta.value.trim(), true);
         inputEtiqueta.value = "";
     }
 });
 
+botonAnadirEtiqueta.addEventListener("mousedown", function (event) {
+    inputEtiqueta.value = inputEtiqueta.value.replace(/\s+/g, "_");
+    anadirEtiquetaAlModal(inputEtiqueta.value.trim(), true);
+    inputEtiqueta.value = "";
+});
 
-inputVariable.addEventListener("keydown", function(event) {
+inputVariable.addEventListener("keydown", function (event) {
     if (event.key === 'Enter' && inputVariable.value.trim() !== "") {
         inputVariable.value = inputVariable.value.replace(/\s+/g, "_");
-        anadirVariableAlModal({"nombre":inputVariable.value.trim(),"numerica":tipoVariableModal}, true);
+        anadirVariableAlModal({"nombre":inputVariable.value.trim(),"numerica":tipoVariableModal, "tipo": tipoVariableModalExtra}, true);
         inputVariable.value = "";
     }
 });
 
-function anadirEtiquetaAlModal(texto, eliminable){
+botonAnadirVariable.addEventListener("click", function (event) {
+    inputVariable.value = inputVariable.value.replace(/\s+/g, "_");
+    anadirVariableAlModal({"nombre":inputVariable.value.trim(),"numerica":tipoVariableModal, "tipo": tipoVariableModalExtra}, true);
+    inputVariable.value = "";
+});
+
+function anadirEtiquetaAlModal(texto, eliminable) {
     const contenedor = document.getElementById("listaEtiquetasModal");
 
-    if(listaEtiquetas.has(texto))
+    if(texto.trim() === "")
+        return;
+
+    if (listaEtiquetas.has(texto))
         return;
 
     listaEtiquetas.add(texto);
@@ -370,29 +397,33 @@ function anadirEtiquetaAlModal(texto, eliminable){
 
     const botonEliminar = componenteEtiqueta.querySelector("button");
 
-    if(eliminable){
-        botonEliminar.addEventListener("click", function() {
+    if (eliminable) {
+        botonEliminar.addEventListener("click", function () {
             contenedor.removeChild(componenteEtiqueta);
             listaEtiquetas.delete(texto);
         });
     }
-    else{
+    else {
         botonEliminar.remove();
         componenteEtiqueta.style.backgroundColor = "rgba(0, 0, 252, 0.1)";
     }
-    
+
 }
 
 //variable tiene que estar en formato: {nombre: "nombre", numerica: true}
-function anadirVariableAlModal(variable, eliminable){
+function anadirVariableAlModal(variable, eliminable) {
     const contenedor = document.getElementById("listaVariablesModal");
 
-    if(listaNombresVariables.has(variable.nombre.toLowerCase()))
+    if (variable.nombre.trim() === "")
         return;
 
-    listaVariables.add({nombre: variable.nombre, numerica: variable.numerica, eliminable: eliminable});
+    if (listaNombresVariables.has(variable.nombre.toLowerCase()))
+        return;
+
+    variable = {nombre: variable.nombre, numerica: variable.numerica, eliminable: eliminable, tipo: variable.tipo};
+    listaVariables.add(variable);
     listaNombresVariables.add(variable.nombre.toLowerCase());
-    
+
     var html = `           
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-box-seam my-auto" viewBox="0 0 16 16">
             <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
@@ -400,7 +431,7 @@ function anadirVariableAlModal(variable, eliminable){
 
         <div class="d-flex flex-column ms-2">
             <span class="ms-2">${variable.nombre}</span>
-            <span class="ms-2" style="font-size: 11px;">${variable.numerica ? "Numérica" :"Texto"}</span>
+            <span class="ms-2" style="font-size: 11px;">${variable.tipo}</span>
         </div>
 
         <button class="ms-auto resaltaHover d-flex" style="min-height: 20; min-width: 20;border-radius: 50%;border:none; background-color: transparent;">
@@ -416,14 +447,14 @@ function anadirVariableAlModal(variable, eliminable){
     componenteVariable.innerHTML = html;
     const botonEliminar = componenteVariable.querySelector("button");
 
-    if(eliminable){
-        botonEliminar.addEventListener("click", function() {
+    if (eliminable) {
+        botonEliminar.addEventListener("click", function () {
             contenedor.removeChild(componenteVariable);
             listaVariables.delete(variable);
             listaNombresVariables.delete(variable.nombre.toLowerCase());
         });
     }
-    else{
+    else {
         botonEliminar.remove();
         componenteVariable.style.backgroundColor = "rgba(0, 0, 252, 0.1)";
     }
@@ -433,16 +464,26 @@ function anadirVariableAlModal(variable, eliminable){
 
 /*TOGLE TIPO DE VARIABLE*/
 document.getElementById("tipoVariableModal").addEventListener("click", function() {
-    tipoVariableModal = !tipoVariableModal;
     const componente = document.getElementById("tipoVariableModal");
-    if(tipoVariableModal)
+    if(tipoVariableModalExtra == "TEXTO"){
+        tipoVariableModal = true;
+        tipoVariableModalExtra = "NUMERICO";
         componente.textContent = "Numérica";
-    else 
+    }
+    else if(tipoVariableModalExtra == "NUMERICO"){
+        tipoVariableModal = true;
+        tipoVariableModalExtra = "BOOLEANO";
+        componente.textContent = "Booleano";
+    }
+    else{
+        tipoVariableModal = false;
+        tipoVariableModalExtra = "TEXTO";
         componente.textContent = "Texto";
+    }
 });
 
 /*funciones para limpiar modal*/
-function eliminarVariablesModal(){
+function eliminarVariablesModal() {
     const contenedorVariables = document.getElementById("listaVariablesModal");
     while (contenedorVariables.firstChild) {
         contenedorVariables.removeChild(contenedorVariables.firstChild);
@@ -452,7 +493,7 @@ function eliminarVariablesModal(){
     listaNombresVariables.clear();
 }
 
-function eliminarEtiquetasModal(){
+function eliminarEtiquetasModal() {
     const contenedorEtiquetas = document.getElementById("listaEtiquetasModal");
     while (contenedorEtiquetas.firstChild) {
         contenedorEtiquetas.removeChild(contenedorEtiquetas.firstChild);
@@ -461,7 +502,7 @@ function eliminarEtiquetasModal(){
     listaEtiquetas.clear();
 }
 
-function resetearModal(){
+function resetearModal() {
     document.getElementById("inputNombreEvento").value = "";
     document.getElementById("inputEtiqueta").value = "";
     document.getElementById("inputVariable").value = "";
@@ -475,7 +516,7 @@ function resetearModal(){
 }
 
 //Funcion para que al seleccionar seccion se pongan las variables de la plantilla
-document.getElementById("seccionSelect").addEventListener("change", function() {
+document.getElementById("seccionSelect").addEventListener("change", function () {
     if(!cargando){
         cargando = true;
 
@@ -495,7 +536,7 @@ document.getElementById("seccionSelect").addEventListener("change", function() {
     
                 for (let key in data) {
                     const esNumerica = data[key];
-                    anadirVariableAlModal({"nombre":key,"numerica":esNumerica}, true);
+                    anadirVariableAlModal({"nombre":key,"numerica":esNumerica, "tipo": esNumerica?"NUMERICO":"TEXTO"}, true);
                 }
             }).catch((error) => {
                 console.log(error);
@@ -503,13 +544,12 @@ document.getElementById("seccionSelect").addEventListener("change", function() {
             });
         }
     }
-    
 });
 
 /* FUNCION PARA CREAR EVENTO */
 
-document.getElementById("submit-form-eventos").addEventListener("click", function() {
-    if(cargando == false){
+document.getElementById("submit-form-eventos").addEventListener("click", function () {
+    if (cargando == false) {
         const nombreEvento = document.getElementById("inputNombreEvento").value.trim();
         const dia = _datepicker.selectedDates[0];
         const hora = _timepicker.selectedDates[0];
@@ -554,7 +594,7 @@ document.getElementById("submit-form-eventos").addEventListener("click", functio
             return;
         }
 
-        if(nombreEvento.length < 1 && creando){
+        if (nombreEvento.length < 1 && creando) {
             textoError.textContent = "El nombre del evento no puede estar vacío.";
             textoError.style.display = "block";
             return;
@@ -572,10 +612,10 @@ document.getElementById("submit-form-eventos").addEventListener("click", functio
             idEvento: id_evento_editado
         }).then((data) => {
             cargando = false;
-            if(data.success)
+            if (data.success)
                 //se ha guardado con exito
                 location.reload(true)
-            else{
+            else {
                 //algun error al comprobar los datos en el servidor
                 textoError.textContent = data.error;
                 textoError.style.display = "block";
@@ -588,14 +628,13 @@ document.getElementById("submit-form-eventos").addEventListener("click", functio
 });
 
 /*cancelar evento*/
-function cancelarEvento(id){
-    console.log("cancelar evento");
-    if(cargando == false){
+function cancelarEvento(id) {
+    if (cargando == false) {
         cargando = true;
         go(config.rootUrl + '/admin/eventos/cancelar/' + id, 'POST').then((data) => {
             cargando = false;
-            if(data.success);
-                location.reload(true)
+            if (data.success);
+            location.reload(true)
         }).catch((error) => {
             console.log(error);
             cargando = false;

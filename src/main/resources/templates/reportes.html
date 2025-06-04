@@ -179,7 +179,7 @@
 
     <script type="module">
         import { DataTable } from "../js/simple-datatables-10.js"
-        const tableUsers = new DataTable("#myTableReports", {
+        const tableReports = new DataTable("#myTableReports", {
             searchable: true,
             perPageSelect: false,
             perPage: 9,
@@ -193,7 +193,7 @@
             }
         });
 
-        tableUsers.on("datatable.init", () => {
+        tableReports.on("datatable.init", () => {
             const paginacion = document.querySelector(".datatable-wrapper .datatable-bottom");
             if (paginacion) {
                 paginacion.style.display = "flex";
@@ -202,6 +202,8 @@
                 paginacion.style.gap = "1rem";
                 paginacion.style.flexWrap = "wrap";
             }
+
+            window.tableReports = tableReports;
         });
     </script>
 

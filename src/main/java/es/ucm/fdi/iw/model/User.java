@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,26 +19,40 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @NamedQueries({
-        @NamedQuery(name = "User.byUsername", query = "SELECT u FROM User u "
-                + "WHERE u.username = :username AND u.enabled = TRUE"),
-        @NamedQuery(name = "User.hasUsername", query = "SELECT COUNT(u) "
-                + "FROM User u "
-                + "WHERE u.username = :username"),
-        @NamedQuery(name = "User.topics", query = "SELECT t.key "
-                + "FROM Topic t JOIN t.members u "
-                + "WHERE u.id = :id"),
-        @NamedQuery(name = "User.getChats", query = "SELECT e FROM User u JOIN u.chats e WHERE u.id = :id"),
-        @NamedQuery(name = "User.estaEnChat", query = "SELECT p FROM ParticipacionChat p WHERE p.usuario = :user AND p.evento = :evento"),
-        @NamedQuery(name = "User.countChats", query = "SELECT COUNT(e) FROM User u JOIN u.chats e WHERE u.id = :id"),
-        @NamedQuery(name = "User.countApuestas", query = "SELECT COUNT(a) FROM User u JOIN u.apuestas a WHERE u.id = :id"),
-        @NamedQuery(name = "User.countApuestasPend", query = "SELECT COUNT(a) FROM User u JOIN u.apuestas a WHERE u.id = :id AND a.formulaApuesta.resultado = 'INDETERMINADO'"),
-        @NamedQuery(name = "User.countMensajes", query = "SELECT COUNT(m) FROM User u JOIN u.mensajes m WHERE u.id = :id"),
-        @NamedQuery(name = "User.existeUsername", query = "SELECT COUNT(u) FROM User u WHERE u.username = :username AND u.id != :id"),
-        @NamedQuery(name = "User.existeEmail", query = "SELECT COUNT(u) FROM User u WHERE u.email = :email AND u.id != :id")
+        @NamedQuery(name = "User.byUsername", query = "SELECT u FROM User u " +
+                "WHERE u.username = :username " +
+                "AND u.enabled = TRUE"),
+        @NamedQuery(name = "User.hasUsername", query = "SELECT COUNT(u) FROM User u " +
+                "WHERE u.username = :username"),
+        @NamedQuery(name = "User.getChats", query = "SELECT e FROM User u " +
+                "JOIN u.chats e " +
+                "WHERE u.id = :id"),
+        @NamedQuery(name = "User.estaEnChat", query = "SELECT p FROM ParticipacionChat p " +
+                "WHERE p.usuario = :user " +
+                "AND p.evento = :evento"),
+        @NamedQuery(name = "User.countChats", query = "SELECT COUNT(e) FROM User u " +
+                "JOIN u.chats e " +
+                "WHERE u.id = :id"),
+        @NamedQuery(name = "User.countApuestas", query = "SELECT COUNT(a) FROM User u " +
+                "JOIN u.apuestas a " +
+                "WHERE u.id = :id"),
+        @NamedQuery(name = "User.countApuestasPend", query = "SELECT COUNT(a) FROM User u " +
+                "JOIN u.apuestas a " +
+                "WHERE u.id = :id " +
+                "AND a.formulaApuesta.resultado = 'INDETERMINADO'"),
+        @NamedQuery(name = "User.countMensajes", query = "SELECT COUNT(m) FROM User u " +
+                "JOIN u.mensajes m " +
+                "WHERE u.id = :id"),
+        @NamedQuery(name = "User.existeUsername", query = "SELECT COUNT(u) FROM User u " +
+                "WHERE u.username = :username " +
+                "AND u.id != :id"),
+        @NamedQuery(name = "User.existeEmail", query = "SELECT COUNT(u) FROM User u " +
+                "WHERE u.email = :email " +
+                "AND u.id != :id")
 })
+
 @Table(name = "IWUser")
 public class User implements Transferable<User.Transfer> {
-
     public enum Role {
         USER, // normal users
         ADMIN, // admin users
@@ -52,6 +65,7 @@ public class User implements Transferable<User.Transfer> {
 
     @Column(nullable = false, unique = true)
     private String username;
+
     @Column(nullable = false)
     private String password;
 
@@ -61,11 +75,9 @@ public class User implements Transferable<User.Transfer> {
 
     private boolean enabled;
     private String roles; // split by ',' to separate roles
-    // añadir tiempo de expulsion como vaiable
     private int dineroDisponible; // En centimos
     private int dineroRetenido; // En centimos
-
-    private OffsetDateTime expulsadoHasta; 
+    private OffsetDateTime expulsadoHasta; // Fecha hasta la que el usuario está expulsado
 
     @OneToMany(mappedBy = "usuario")
     private List<ParticipacionChat> chats;
@@ -75,13 +87,6 @@ public class User implements Transferable<User.Transfer> {
 
     @OneToMany(mappedBy = "remitente")
     private List<Mensaje> mensajes;
-
-    @OneToMany
-    @JoinColumn(name = "sender_id")
-    private List<Message> sent = new ArrayList<>();
-    @OneToMany
-    @JoinColumn(name = "recipient_id")
-    private List<Message> received = new ArrayList<>();
 
     /**
      * Checks whether this user has a given role.
@@ -98,18 +103,37 @@ public class User implements Transferable<User.Transfer> {
     @AllArgsConstructor
     public static class Transfer {
         private long id;
-        private String username;
-        private int totalReceived;
-        private int totalSent;
+	private String username;
+        private String email;
+        private int saldo;
+        private String rol;
+        private String expulsadoHasta;
     }
 
-    @Override
     public Transfer toTransfer() {
-        return new Transfer(id, username, received.size(), sent.size());
+        String expulsado = null;
+        if (expulsadoHasta != null && expulsadoHasta.isAfter(OffsetDateTime.now())) {
+                expulsado = expulsadoHasta.toString();
+        }
+        
+        return new Transfer(id, username, email, dineroDisponible, roles, expulsado);
     }
 
     @Override
     public String toString() {
-        return toTransfer().toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("User{id=").append(id)
+          .append(", username='").append(username).append('\'')
+          .append(", firstName='").append(firstName).append('\'')
+          .append(", lastName='").append(lastName).append('\'')
+          .append(", email='").append(email).append('\'')
+          .append(", enabled=").append(enabled)
+          .append(", roles='").append(roles).append('\'')
+          .append(", dineroDisponible=").append(dineroDisponible)
+          .append(", dineroRetenido=").append(dineroRetenido)
+          .append(", expulsadoHasta=").append(expulsadoHasta)
+          .append('}');
+        
+        return sb.toString();
     }
 }

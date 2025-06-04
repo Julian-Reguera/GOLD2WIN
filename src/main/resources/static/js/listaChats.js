@@ -1,7 +1,7 @@
 const userId = document.getElementById('userId').value; //Id del usuario logueado
 let eventoInicial //Chat inicial que se abre al cargar la pagina
 
-if(document.getElementById('eventoInicial')){
+if (document.getElementById('eventoInicial')) {
     eventoInicial = document.getElementById('eventoInicial').value;
 }
 
@@ -16,16 +16,13 @@ var contenedorEventoSeleccionado = null; //Contenedor del evento seleccionado (p
 
 let idMensajeClicado = 0; //para el menu contextual
 
-function inicializarMenusContextuales(){
+function inicializarMenusContextuales() {
     const botonEliminarMensaje = document.getElementById("botonEliminarMensaje");
     const formReporte = document.getElementById("formReporte");
 
-    if(botonEliminarMensaje){
+    if (botonEliminarMensaje) {
         botonEliminarMensaje.addEventListener("click", function () {
-            go(config.rootUrl + '/chats/borrarMensaje/' + idMensajeClicado, 'DELETE').then(function (data) {
-            }).catch(function (error) {
-                console.log(error);
-            });
+            eliminarMensajeServidor(idMensajeClicado);
         });
     }
 
@@ -45,7 +42,7 @@ function inicializarMenusContextuales(){
         menuAgeno.classList.add("desaparece");
     });
 
-    if(formReporte){
+    if (formReporte) {
         formReporte.addEventListener("submit", function (e) {
             e.preventDefault();
             const motivo = document.getElementById("motivo").value.trim();
@@ -66,7 +63,7 @@ function inicializarMenusContextuales(){
     }
 }
 
-function inicializarLupaEventos(){
+function inicializarLupaEventos() {
     const buscador = document.getElementById('queryEventos');
 
     if (buscador) {
@@ -79,7 +76,7 @@ function inicializarLupaEventos(){
     }
 }
 
-function inicializaEnvioMensajes(){
+function inicializaEnvioMensajes() {
     const inputMensaje = document.getElementById('campoMensaje');
     const botonEnviar = document.getElementById('botonEnviar');
 
@@ -98,7 +95,7 @@ function inicializaEnvioMensajes(){
     }
 }
 
-function inicializaBotonRetroceder(){
+function inicializaBotonRetroceder() {
     const botonRetroceder = document.getElementById('botonRetroceder');
 
     if (botonRetroceder) {
@@ -180,7 +177,7 @@ function suscribirseWebSocketChat(chat) {
 function eliminarMensaje(idMensaje) {
     let mensajeDiv = document.querySelector(`[data-idMensaje="${idMensaje}"]`);
     if (!mensajeDiv) return; //si no existe el mensaje no se hace nada
-    let padreDiv = mensajeDiv.parentNode;
+    let padreDiv = mensajeDiv.parentNode.parentNode;
 
     if (padreDiv.childElementCount == 1) {
         let abueloDiv = padreDiv.parentNode;
@@ -209,16 +206,17 @@ function eliminarMensaje(idMensaje) {
     }
     else {
         let hijosDirectos = Array.from(padreDiv.children);
-        if (hijosDirectos.indexOf(mensajeDiv) === 0) {
+        if (hijosDirectos.indexOf(mensajeDiv.parentNode) === 0) {
             //si es el primer hijo del padre (el mensaje) se elimina el separador de arriba
-            hijosDirectos[1].setAttribute('atop', '');
+            let men = hijosDirectos[1].querySelector('.mensaje');
+            men.setAttribute('atop', '');
             if (mensajeDiv.hasAttribute('pleft'))
-                hijosDirectos[1].setAttribute('pleft', '');
+                men.setAttribute('pleft', '');
             if (mensajeDiv.hasAttribute('pright'))
-                hijosDirectos[1].setAttribute('pright', '');
+                men.setAttribute('pright', '');
         }
 
-        mensajeDiv.remove(); //Elimino el mensaje del chat
+        mensajeDiv.parentNode.remove(); //Elimino el mensaje del chat
     }
 }
 
@@ -287,8 +285,6 @@ function seleccionarChat(chat, componente) {
     const imagenCabeceraChat = document.getElementById("imagenCabeceraChat");
     const tituloCabeceraChat = document.getElementById("tituloCabeceraChat");
     const tituloCabeceraChatMobile = document.getElementById("tituloCabeceraChatMobile");
-    console.log("no me hace caso");
-    console.log(chat);
 
     //Cambio la barra de cabecera de chat
     chatContainer.classList.add("d-lg-flex", "flex-column");
@@ -304,7 +300,7 @@ function seleccionarChat(chat, componente) {
     ultimoContenedorMensaje = null;
 
     //Elimino el numero de mensajes no leidos del chat (como acabo de entrar ya se han leido)
-    if(componente){
+    if (componente) {
         const indicadorMensajes = componente.querySelector('.badge');
         indicadorMensajes.classList.add('d-none');
         indicadorMensajes.textContent = 0;
@@ -414,7 +410,7 @@ function buscarChat(busqueda) {
 //Añado un mensaje al chat abierto, si es del mismo emisor que el anterior lo agrupo sino creo un nuevo grupo
 function anadirMensajeAbajo(mensaje) {
     const propio = mensaje.idEmisor == userId; //si el mensaje es del usuario logueado
-    var nuevoMensajeDiv = document.createElement('div');
+    let nuevoMensajeDiv = document.createElement('div');
     nuevoMensajeDiv.setAttribute('class', 'mensaje mt-1 pb-1 pt-2 text-wrap text-break');
     nuevoMensajeDiv.setAttribute('data-idMensaje', mensaje.id); //guardo el id del mensaje para poder eliminarlo si es necesario
 
@@ -462,6 +458,14 @@ function anadirMensajeAbajo(mensaje) {
                                     </div>`;
     }
 
+    let padreParaBoton = document.createElement('div');
+    padreParaBoton.setAttribute('class', 'd-inline-flex');
+
+
+    let botonAccion = document.createElement('button');
+    botonAccion.setAttribute('style', 'max-width: 30px; min-width: 30px; max-height: 30px; min-height: 30px;');
+
+
     if (propio) {
         const menu = document.getElementById("menuPropio");
         const menuAgeno = document.getElementById("menuAgeno");
@@ -475,6 +479,21 @@ function anadirMensajeAbajo(mensaje) {
             menu.classList.remove("desaparece");
             menuAgeno.classList.add("desaparece");
         });
+
+        botonAccion.setAttribute('class', 'btn btn-outline-danger me-2 d-flex mt-auto mb-auto align-items-center justify-content-center p-0');
+
+        botonAccion.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+        </svg>`;
+
+        botonAccion.addEventListener("click", function () {
+            eliminarMensajeServidor(mensaje.id);
+        });
+
+        padreParaBoton.appendChild(botonAccion);
+        padreParaBoton.appendChild(nuevoMensajeDiv);
     }
     else {
         const menu = document.getElementById("menuAgeno");
@@ -489,9 +508,33 @@ function anadirMensajeAbajo(mensaje) {
             menu.classList.remove("desaparece");
             menuPropio.classList.add("desaparece");
         });
+
+        botonAccion.setAttribute('data-bs-toggle', 'modal');
+        botonAccion.setAttribute('data-bs-target', '#reportarModal');
+        botonAccion.setAttribute('class', 'btn btn-outline-warning ms-2 d-flex mt-auto mb-auto align-items-center justify-content-center p-0');
+
+        botonAccion.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-exclamation-circle" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+            <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
+        </svg>`;
+
+        botonAccion.addEventListener('click', function () {
+            idMensajeClicado = mensaje.id;
+        });
+
+        padreParaBoton.appendChild(nuevoMensajeDiv);
+        padreParaBoton.appendChild(botonAccion);
     }
 
-    ultimoContenedorMensaje.appendChild(nuevoMensajeDiv);
+    ultimoContenedorMensaje.appendChild(padreParaBoton);
+}
+
+function eliminarMensajeServidor(idMensaje) {
+    go(config.rootUrl + '/chats/borrarMensaje/' + idMensaje, 'DELETE').then(function (data) {
+    }).catch(function (error) {
+        console.log(error);
+    });
 }
 
 //Obtengo la fecha en formato para mostrar a la derecha del evento
@@ -684,6 +727,7 @@ async function cargarFormulas() {
         else
             response = await go(config.rootUrl + "/evento/" + idEventoSeleccionado + "/apostar/buscar" + '?fechaInicio=' + fechaInicio + '&busqueda=' + buscado + '&offset=' + offset, 'GET');
 
+        console.log(response)
         response.formulas.forEach(formula => {
             anadirFormula(formula);
         });
@@ -720,18 +764,26 @@ function anadirFormula(formula) {
             </div>
         </div>
         
-        <div id="cuestionario-form-${formula.id}" class="w-100 d-flex align-items-center mt-3">
-            <button type="button" class="btn btn-success botonApostarFavorable d-flex flex-column g-0" onclick="enviarFormulario(true,${formula.id})">
-                <span style="font-size:14px;" id="cuota-favorable-${formula.id}">x${parseFloat(formula.cuotaFaborable).toFixed(2)}</span>
-                <span style="font-size:12px;">(favorable)</span>
-            </button>
+        <div id="cuestionario-form-${formula.id}" class="w-100 d-flex align-items-top mt-3">
+            <div>
+                <button type="button" class="btn btn-success botonApostarFavorable d-flex flex-column g-0" onclick="enviarFormulario(true,${formula.id})" style="min-width: 101px;">
+                    <span style="font-size:14px;" id="cuota-favorable-${formula.id}">x${parseFloat(formula.cuotaFaborable).toFixed(2)}</span>
+                    <span style="font-size:12px;">(favorable)</span>
+                </button>
+                <span id="gastados-${formula.id}-aFabor" data-gastado="${formula.apostadoAFavor}" style="font-size:11px;">${formula.apostadoEnContra != 0 || formula.apostadoAFavor != 0 ? `${formula.apostadoAFavor / 100}$ gastados` : ``}</span>
+            </div>
+            
 
-            <input type="number" id="cantidad-${formula.id}" class ="form-control mx-2 flex-grow-1" placeholder="cantidad..." required>
+            <input type="number" id="cantidad-${formula.id}" class ="form-control mx-2 flex-grow-1 mt-2" placeholder="cantidad..." required style="max-height:38px;">
 
-            <button type="button" class="btn btn-success botonApostarDesfavorable d-flex flex-column g-0" style="gap: 0px;" onclick="enviarFormulario(false,${formula.id})">
-                <span style="font-size:14px;" id="cuota-desfavorable-${formula.id}">x${parseFloat(formula.cuotaDesfavorable).toFixed(2)}</span>
-                <span style="font-size:12px;">(desfavorable)</span>
-            </button>
+            <div>
+                <button type="button" class="btn btn-success botonApostarDesfavorable d-flex flex-column g-0" style="gap: 0px;" onclick="enviarFormulario(false,${formula.id})" style="min-width: 101px;">
+                    <span style="font-size:14px;" id="cuota-desfavorable-${formula.id}">x${parseFloat(formula.cuotaDesfavorable).toFixed(2)}</span>
+                    <span style="font-size:12px;">(desfavorable)</span>
+                </button>
+                <span id="gastados-${formula.id}-enContra" data-gastado="${formula.apostadoEnContra}" style="font-size:11px;">${formula.apostadoEnContra != 0 || formula.apostadoAFavor != 0 ? `${formula.apostadoEnContra / 100}$ gastados` : ``}</span>
+            </div>
+            
         </div>
 
         <svg id="confirmacionApuesta-${formula.id}" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class=" confirmacionApuesta bi bi-check-circle-fill text-success invisible" viewBox="0 0 16 16">
@@ -742,7 +794,6 @@ function anadirFormula(formula) {
     document.getElementById("contendorFormulas").appendChild(elementoHTML);
 }
 
-
 /*  CODIGO PARA EL MODAL Y LAS APUESTAS  */
 
 //cuando abres el model siempre está en la primera pestaña
@@ -751,7 +802,6 @@ document.getElementById("boton-crear-formula-reducido").addEventListener("click"
 });
 
 function mostrarModal() {
-    console.log("entra");
     var elementos1 = document.querySelectorAll('.vision-creatuApuesta-1');
     var elementos2 = document.querySelectorAll('.vision-creatuApuesta-2');
 
@@ -767,7 +817,6 @@ function mostrarModal() {
 }
 
 document.getElementById("botonSiguienteCrearApuesta").addEventListener("click", () => {
-    console.log("entra");
     var elementos1 = document.querySelectorAll('.vision-creatuApuesta-1');
     var elementos2 = document.querySelectorAll('.vision-creatuApuesta-2');
 
@@ -813,7 +862,7 @@ document.getElementById("crearApuestaForm").addEventListener("submit", function 
         cantidad = Math.floor(cantidad * 100);
         const tipoApuesta = document.getElementById("tipoApuestaModal").value == "favorable";
 
-        go(config.rootUrl + "/evento/"+idEventoSeleccionado+"/crearFormula", 'POST', { titulo, formula, cantidad, tipoApuesta }).then((response) => {
+        go(config.rootUrl + "/evento/" + idEventoSeleccionado + "/crearFormula", 'POST', { titulo, formula, cantidad, tipoApuesta }).then((response) => {
             if (response.status == "OK") {
                 document.getElementById("ocultador-formulario2").classList.add("invisible");
                 let check = document.getElementById("confirmacionApuesta2");
@@ -856,6 +905,7 @@ document.getElementById("crearApuestaForm").addEventListener("submit", function 
 
 var enviandoFormulario = false; // Para evitar que si clicas varias veces en el mismo botón apuestes varias veces
 
+// Realiza la apuesta
 function enviarFormulario(esFavorable, id) {
     var input = document.getElementById("cantidad-" + id);
 
@@ -882,6 +932,11 @@ function enviarFormulario(esFavorable, id) {
                 check.classList.remove("invisible");
                 check.style.animation = "fadeIn 0.5s ease-in-out";
 
+                const contenedorGastado = esFavorable ? document.getElementById("gastados-" + id + "-aFabor") : document.getElementById("gastados-" + id + "-enContra");
+                const gastadaActual = parseInt(contenedorGastado.getAttribute("data-gastado"));
+                contenedorGastado.textContent = `${(cantidad + gastadaActual) / 100}$ gastados`;
+                contenedorGastado.setAttribute("data-gastado", (cantidad + gastadaActual).toString());
+
                 setTimeout(() => {
                     for (let child of contenedorFormula.children) {
                         child.classList.remove("invisible");
@@ -902,30 +957,30 @@ function enviarFormulario(esFavorable, id) {
 }
 
 function cargarVariables() {
-    go(config.rootUrl + '/evento/' + idEventoSeleccionado + '/getVariables', 'GET').then(function (data) { 
+    go(config.rootUrl + '/evento/' + idEventoSeleccionado + '/getVariables', 'GET').then(function (data) {
         const contenedor = document.getElementById("lista-Variables-texto");
         contenedor.textContent = data.variables.join(", ");
-    }).catch(function (error) { 
-        console.log(error); 
+    }).catch(function (error) {
+        console.log(error);
     });
 }
 
-function suscribirse(id){
-    go(config.rootUrl + '/chats/' + id+'/suscribirse' ,'POST').then(function (data) {
+function suscribirse(id) {
+    go(config.rootUrl + '/chats/' + id + '/suscribirse', 'POST').then(function (data) {
         const botonSuscribirse = document.getElementById("btn_suscribirse");
         const botonDesuscribirse = document.getElementById("btn_desuscribirse");
 
         botonSuscribirse.classList.add("desaparece");
         botonDesuscribirse.classList.remove("desaparece");
-    }).catch(function (error) {console.log(error);});
+    }).catch(function (error) { console.log(error); });
 }
 
-function desuscribirse(id){
-    go(config.rootUrl + '/chats/' + id+'/desuscribirse' ,'POST').then(function (data) {
+function desuscribirse(id) {
+    go(config.rootUrl + '/chats/' + id + '/desuscribirse', 'POST').then(function (data) {
         const botonSuscribirse = document.getElementById("btn_suscribirse");
         const botonDesuscribirse = document.getElementById("btn_desuscribirse");
 
         botonSuscribirse.classList.remove("desaparece");
         botonDesuscribirse.classList.add("desaparece");
-    }).catch(function (error) {console.log(error);});
+    }).catch(function (error) { console.log(error); });
 }

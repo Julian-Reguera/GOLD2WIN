@@ -1221,15 +1221,6 @@ a.botonOvalado.nav-link:hover {
     font-weight: bold;
 }
 
-#contenedorGeneralUsuario {
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    flex-grow: 1;
-    overflow-x: none;
-    max-height: 650px;
-}
-
 .imagenUsuario {
     position: relative;
     display: inline-block;
